@@ -4,6 +4,9 @@ int SHAPE_TRIANGLE = 2;
 int SHAPE_SALTIRE = 3;
 int SHAPE_RSALTIRE = 4;
 
+int FULL_COLOR = 255;
+int HALF_COLOR = 127;
+
 var objects = new Array();
 var settings = new Object();
 
@@ -14,7 +17,7 @@ int edit_shape;
 
 void setup() {
     size(window.innerWidth, window.innerHeight);
-    settings.object_radius = 25;
+    settings.object_radius = 20;
     settings.width = window.innerWidth;
     settings.height = window.innerHeight;
     settings.drag_distance = 40;
@@ -41,11 +44,7 @@ void draw() {
     background(255,255,255);
     
     for (int i = 0; i < objects.length; ++i) {
-        if (i != settings.moving) {
-            drawItem(i);
-        } else {
-            drawMoving(i);
-        }
+        drawItem(i);
     }
     
     if (settings.add_menu == 1) drawAddMenu();
@@ -173,74 +172,62 @@ void drawEditMenu() {
 }
 
 void drawItem(int id) {
-    int x = objects[id].x;
-    int y = objects[id].y;
-    int s = objects[id].shape;
-    
-    int cr = objects[id].r;
-    int cg = objects[id].g;
-    int cb = objects[id].b;
+    Object i = objects[id];
     
     int w = settings.height/2;
+    int f = (frameCount - i.start_frame) % w;
+    int f2 = (frameCount - i.start_frame) / 100;
     
-    int b = settings.object_radius;
-    
-    int f0 = (frameCount - objects[id].start_frame) % w;
-    
-    fill(cr,cg,cb,5);
-    noStroke();
-    for (int i = 0; i <= 50; ++i) {
-        ellipse(x, y, b+i*w/50, b+i*w/50);
-    }
-    
-    strokeWeight(3);
-    noFill();
-    for (int i = 0; i <= 5; ++i) {
-        int r = b+((f0 + i*w/5)%w);
-        stroke(cr,cg,cb,255*(1-(r/(w+b))));
-        ellipse(x, y, r, r);
-    }
-    
-    if (s == SHAPE_CIRCLE) drawCircle(x,y,20,1,255);
-    else if (s == SHAPE_TRIANGLE) drawTriangle(x,y,20,1,255);
-    else if (s == SHAPE_SQUARE) drawSquare(x,y,20,1,255);
-}
-
-void drawMoving(int id) {
-    int x = mouseX;
-    int y = mouseY;
-    int s = objects[id].shape;
-    
-    int cr = objects[id].r;
-    int cg = objects[id].g;
-    int cb = objects[id].b;
-    
-    int w = settings.height/2;
-    
-    int f = (frameCount - objects[id].start_frame) / 100;
-    
-    fill(cr,cg,cb,32);
-    noStroke();
-    
-    ellipse(x, y, 25+w, 25+w);
-    
-    stroke(cr,cg,cb);
-    noFill();
-    
-    for (int i = 0; i < 32; i+=2) {
-        float a = (TWO_PI*i/32 + f) % TWO_PI;
-        float b = (TWO_PI*(i+1)/32 +f) % TWO_PI;
-        if (a < b) arc(x, y, 25+w, 25+w,a,b);
-        else {
-            arc(x, y, 25+w, 25+w,a,TWO_PI);
-            arc(x, y, 25+w, 25+w,0,b);
+    if (i.moving) {
+        fill(i.r,i.g,i.b,32);
+        noStroke();
+        
+        ellipse(i.x, i.y, 25+w, 25+w);
+        
+        stroke(i.r,i.g,i.b);
+        noFill();
+        for (int j = 0; j < 32; j+=2) {
+            float a = (TWO_PI*j/32 + f2) % TWO_PI;
+            float b = (TWO_PI*(j+1)/32 +f2) % TWO_PI;
+            if (a < b) arc(i.x, i.y, 25+w, 25+w,a,b);
+            else {
+                arc(i.x, i.y, 25+w, 25+w,a,TWO_PI);
+                arc(i.x, i.y, 25+w, 25+w,0,b);
+            }
+        }
+    } else if (i.active) {
+        fill(i.r,i.g,i.b,5);
+        noStroke();
+        for (int j = 0; j <= 50; ++j) {
+            ellipse(i.x, i.y, i.radius+j*w/50, i.radius+j*w/50);
+        }
+        
+        strokeWeight(3);
+        noFill();
+        for (int j = 0; j <= 5; ++j) {
+            int r = 2*i.radius+((f + j*w/5)%w);
+            stroke(i.r,i.g,i.b,255*(1-(r/(w+i.radius))));
+            ellipse(i.x, i.y, r, r);
         }
     }
     
-    if (s == SHAPE_CIRCLE) drawCircle(x,y,20,1,255);
-    else if (s == SHAPE_TRIANGLE) drawTriangle(x,y,20,1,255);
-    else if (s == SHAPE_SQUARE) drawSquare(x,y,20,1,255);
+    if (i.active || i.moving) fill(i.r,i.g,i.b, FULL_COLOR);
+    else fill(127,127,127);
+    stroke(0,0,0);
+    switch (i.shape) {
+        case SHAPE_CIRCLE:
+            ellipse(i.x, i.y, 2*i.radius, 2*i.radius);
+            break;
+        case SHAPE_TRIANGLE:
+            triangle(i.x,i.y-i.radius,i.x+i.radius*sqrt(2)/2,i.y+i.radius*sqrt(2)/2,i.x-i.radius*sqrt(2)/2,i.y+i.radius*sqrt(2)/2);
+            break;
+        case SHAPE_SQUARE:
+            rect(i.x-(i.radius*sqrt(2)/2), i.y-(i.radius*sqrt(2)/2),i.radius*sqrt(2),i.radius*sqrt(2));
+            break;
+    }
 }
+
+// TODO This functions are kept for now for testing (needed for add menu), but will be removed or changed TODO
 
 void drawCircle(int x, int y, int r, int st, int alpha) {
     fill(255,0,0, alpha);
@@ -297,11 +284,13 @@ void drawRSaltire(int x, int y, int r, int k, int st, int alpha) {
     inner_drawSaltire(x, y, r, k, st, alpha, 255, 0, 0);
 }
 
+// TODO END TODO
+
 /*
  * HELPERS
  */
 
-// TODO This needs a threshold to avoid collision with edit on multitouch TODO
+// TODO This will be deleted! TODO
 int getCloserAddMenu() {
     int w = settings.height/8;
     
@@ -330,7 +319,7 @@ int getCloserAddMenu() {
     return ret;
 }
 
-// TODO This needs a threshold to avoid collision with add on multitouch TODO
+// TODO Change closer method to point-select, to enable multitouch menus TODO
 int getCloserEditMenu() {
     int w = settings.height/8;
     
@@ -393,6 +382,8 @@ void createShape(int shape, int x, int y) {
     o.y = y;
     o.start_frame = frameCount;
     o.shape = shape;
+    o.active = false;
+    o.radius = settings.object_radius;
     switch(shape) {
         case SHAPE_CIRCLE:
             o.r = 255;
@@ -411,7 +402,6 @@ void createShape(int shape, int x, int y) {
             break;
     }
     objects.push(o);
-    //console.log(objects);
 }
 
 void editShapeMenu() {
@@ -426,45 +416,57 @@ void startDrag() {
     for (int i = 0; i < objects.length && found == 0; ++i) {
         if (dist(mouseX,mouseY,objects[i].x,objects[i].y) <= settings.drag_distance) {
             found = 1;
-            settings.moving = i;
+            objects[i].moving = true;
         }
     }
 }
 
-void endDrag() {
-    if (settings.moving != -1) {
-        objects[settings.moving].x = mouseX;
-        objects[settings.moving].y = mouseY;
-        settings.moving = -1;
+void endDrag(int x, int y) {
+    for (int i = 0; i < objects.length; i++) {
+        if (objects[i].x == x && objects[i].y == y) {
+            objects[i].moving = false;
+        }
     }
 }
 
+void processDrag(int x, int y) {
+    for (int i = 0; i < objects.length; ++i) {
+        Object o = objects[i];
+        int rad = o.radius*2;
+        if (o.moving && x > o.x-rad && x < o.x+rad && y > o.y-rad && y < o.y+rad) {
+            objects[i].x = x;
+            objects[i].y = y;
+        }
+    }
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 
-var element = document.getElementById('table');
+var hammer = Hammer(document.getElementById('table'));
 
-var hammertime = Hammer(element).on("hold", function(event) {
-    if (getCloserHold(settings.threshold) != -1) editShapeMenu();
-    else addShapeMenu();
-});
-
-hammertime = Hammer(element).on("touch", function(event) {
-    if (settings.add_menu == 1) addMenuSelect();
-    if (settings.edit_menu == 1) editMenuSelect();
-});
-
-hammertime = Hammer(element).on("dragstart", function(event) {
+hammer.on("hold touch dragstart drag dragend", function(event) {
     event.gesture.preventDefault();
-    startDrag();
+    
+    switch (event.type) {
+        case "hold":
+            if (getCloserHold(settings.threshold) != -1) editShapeMenu();
+            else addShapeMenu();
+            break;
+        case "touch":
+            if (settings.add_menu == 1) addMenuSelect();
+            if (settings.edit_menu == 1) editMenuSelect();
+            break;
+        case "dragstart":
+            startDrag();
+            break;
+        case "drag":
+            processDrag(event.gesture.touches[0].pageX, event.gesture.touches[0].pageY);
+            break;
+        case "dragend":
+            endDrag(event.gesture.touches[0].pageX, event.gesture.touches[0].pageY);
+            break;
+    }
 });
-
-hammertime = Hammer(element).on("dragend", function(event) {
-    event.gesture.preventDefault();
-    endDrag();
-});
-
-
 
 
 
