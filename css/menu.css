@@ -1,0 +1,124 @@
+@-webkit-keyframes titleAnim {
+  from {
+    opacity: 0.0;
+    font-size: 50%;
+  }
+  to {
+    opacity: 1.0;
+    font-size: 100%;
+  }
+}
+
+body{
+	background-image:url('../ressources/background.jpg');
+}
+
+body > * {
+  -webkit-animation-name: titleAnim;
+  -webkit-animation-duration: 2s;
+  -webkit-animation-iteration-count: 1;
+  -webkit-animation-timing-function: ease-in-out;
+  -webkit-animation-direction: alternate;
+}​
+
+#title{
+	height:100px;
+	width:600px;
+	border-radius: 20px;
+	background-color: #088EFC;
+	margin-left: auto;
+	margin-right: auto;
+	display: inline-block;
+}
+
+#title > p{
+	font-family: 'Lobster', Georgia, Times, serif;
+    font-size: 70px;
+    line-height: 100px;
+    border-radius: 20px;
+	text-align:center;
+	background-color: blue;
+	color:#E3E3E3;
+	margin-top: 5px;
+	margin-bottom: 5px;
+	margin-left: auto;
+	margin-right: auto;
+	width:600px;
+	position: relative;
+	opacity: 0.8;
+	-webkit-animation: titleAnim 2s;
+	
+}
+@-webkit-keyframes titleAnim
+{
+	0%   {top:-500px;}
+	100%  {top:0px;}
+}
+
+#menu_container{
+	margin-left:auto;
+	margin-right:auto;
+	background-color: #2CC6F5;
+	width: 600px;
+	height:400px;
+	padding: 20px;
+	border-radius: 20px;
+	position: relative;
+	opacity: 0.7;
+	-webkit-animation:menuAnim 2s;
+}
+@-webkit-keyframes menuAnim
+{
+	0%   {left: 500px;}
+	100%  {left:0px;}
+}
+
+.circle{
+	border-radius: 10px;
+	display: block;
+	position:relative;
+	margin-top: 10px;
+	margin-left:auto;
+	margin-right:auto;
+	height:120px;
+	width:200px;
+	-webkit-animation:myAnim 2s;
+}
+@-webkit-keyframes myAnim 
+{
+	0%   {left:-300px; top:-500px;}
+	50%  {left:-300px; top:0px;}
+	100%  {left: 0px; top:0px;}
+}
+
+.dynamic:hover{
+	
+	background-color: #0800FC;
+	-webkit-animation: moveLeft 1s forwards;
+}
+@-webkit-keyframes moveLeft {
+ 0%   {opacity: 0.5; left:0px;}
+100% {opacity: 1; left:20px;}
+}
+
+.dynamic{
+	font-family: 'Lobster', Georgia, Times, serif;
+	border: 5px solid #0924BA;
+    font-size: 25px;
+    opacity: 1;
+    line-height: 100px;
+    text-align:center;
+	display: block;
+	border-radius: 10px;
+	height:100px;
+	width:180px;
+	color:white;
+	background-color:blue;
+	margin-top: 10px;
+	margin-left:auto;
+	margin-right:auto;
+	position: relative;
+	
+}
+
+
