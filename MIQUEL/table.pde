@@ -129,9 +129,9 @@ void drawAddMenu() {
 void drawEditMenu(int id) {
     Object o = objects[id];
     
-    noFill();
-    stroke(0,0,0);
-    strokeWeight(2);
+    //noFill();
+    //stroke(0,0,0);
+    //strokeWeight(2);
     
     //ellipse(o.x, o.y, 4*o.radius, 4*o.radius);
     //ellipse(o.x, o.y, 4*o.radius+120, 4*o.radius+120);
@@ -155,8 +155,52 @@ void drawEditMenu(int id) {
     
     fill(255,255,0,63);
     ellipse(o.x,o.y+o.radius+50,60,60); // BOTTOM ITEM
-    PShape s = loadShape("star.svg");
-    shape(s, o.x-25, o.y+o.radius+25, 50, 50);
+    stroke(0,0,0);
+    int r = 10;
+    int px = o.x-r*3*sqrt(2)/4;
+    int py = o.y+o.radius+50-r*3*sqrt(2)/4;
+    fill(255,0,0);
+    ellipse(px, py, 2*r, 2*r);
+    px = o.x+r*3*sqrt(2)/4;
+    py = o.y+o.radius+50-r*3*sqrt(2)/4;
+    fill(0,255,0);
+    triangle(px,py-r,px+r*sqrt(2)/2,py+r*sqrt(2)/2,px-r*sqrt(2)/2,py+r*sqrt(2)/2);
+    px = o.x;
+    py = o.y+o.radius+50+r;
+    fill(0,0,255);
+    rect(px-(r*sqrt(2)/2), py-(r*sqrt(2)/2),r*sqrt(2),r*sqrt(2));
+}
+
+void drawShapesMenu(int id) {
+    Object o = objects[id];
+    
+    stroke(0,0,0);
+    strokeWeight(1);
+    
+    fill(255,0,0,63);
+    ellipse(o.x-o.radius-50,o.y,60,60); // LEFT ITEM
+    
+    int r = 20;
+    int px = o.x-o.radius-50;
+    int py = o.y;
+    ellipse(px, py, 2*r, 2*r); // CIRCLE
+    
+    fill(0,255,0,63);
+    ellipse(o.x+o.radius+50,o.y,60,60); // RIGHT ITEM
+    px = o.x+o.radius+50;
+    py = o.y;
+    triangle(px,py-r,px+r*sqrt(2)/2,py+r*sqrt(2)/2,px-r*sqrt(2)/2,py+r*sqrt(2)/2);
+    
+    fill(0,0,255,63);
+    ellipse(o.x,o.y-o.radius-50,60,60); // TOP ITEM
+    px = o.x;
+    py = o.y-o.radius-50;
+    rect(px-(r*sqrt(2)/2), py-(r*sqrt(2)/2),r*sqrt(2),r*sqrt(2));
+    
+    
+    fill(0,0,0,63);
+    ellipse(o.x,o.y+o.radius+50,60,60); // BOTTOM ITEM
+    drawSaltire(o.x,o.y+o.radius+50,20,10,1);
 }
 
 void drawItem(int id) {
@@ -216,7 +260,8 @@ void drawItem(int id) {
             break;
     }
     
-    if (i.menu) drawEditMenu(id);
+    if (i.menu_shapes) drawShapesMenu(id);
+    else if (i.menu) drawEditMenu(id);
 }
 
 // TODO This functions are kept for now for testing (needed for add menu), but will be removed or changed TODO
@@ -352,6 +397,7 @@ void createShape(int shape, int x, int y) {
     o.active = false;
     o.radius = settings.object_radius;
     o.menu = false;
+    o.menu_shapes = false;
     switch(shape) {
         case SHAPE_CIRCLE:
             o.r = 255;
@@ -379,7 +425,7 @@ void createShape(int shape, int x, int y) {
 int open_menu(int x, int y) {
     for (int i = 0; i < objects.length; ++i) {
         Object o = objects[i];
-        if (dist(x,y,o.x,o.y) <= o.radius) {
+        if (!o.menu_shapes && dist(x,y,o.x,o.y) <= o.radius) {
             objects[i].menu = true;
             return i;
         }
@@ -387,34 +433,76 @@ int open_menu(int x, int y) {
     return -1;
 }
 
-boolean in_edit_cancel(Object o, int x, int y) {
+boolean in_edit_left(Object o, int x, int y) {
     return dist(x, y, o.x-o.radius-50, o.y) < 30;
 }
 
-boolean in_edit_delete(Object o, int x, int y) {
+boolean in_edit_right(Object o, int x, int y) {
     return dist(x, y, o.x+o.radius+50, o.y) < 30;
 }
 
-boolean in_edit_playpause(Object o, int x, int y) {
+boolean in_edit_top(Object o, int x, int y) {
     return dist(x, y, o.x, o.y-o.radius-50) < 30;
+}
+
+boolean in_edit_bottom(Object o, int x, int y) {
+    return dist(x, y, o.x, o.y+o.radius+50) < 30;
 }
 
 int select_menu(int x, int y) {
     for (int i = 0; i < objects.length; ++i) {
         Object o = objects[i];
-        if (o.menu) {
-            if (in_edit_cancel(o,x,y)) {
-                // CANCEL MENU
-                o.menu = false;
+        if (o.menu || o.menu_shapes) {
+            if (in_edit_left(o,x,y)) {
+                if (o.menu) {
+                    // CANCEL MENU
+                    o.menu = false;
+                } else {
+                    // CHANGE TO CIRCLE
+                    o.shape = SHAPE_CIRCLE;
+                    o.r = 255;
+                    o.g = 0;
+                    o.b = 0;
+                    o.menu_shapes = false;
+                } 
                 break;
-            } else if (in_edit_delete(o,x,y)) {
-                // DELETE ITEM
-                objects.splice(i,1);
+            } else if (in_edit_right(o,x,y)) {
+                if (o.menu) {
+                    // DELETE ITEM
+                    objects.splice(i,1);
+                } else {
+                    // CHANGE TO TRIANGLE
+                    o.shape = SHAPE_TRIANGLE;
+                    o.r = 0;
+                    o.g = 255;
+                    o.b = 0;
+                    o.menu_shapes = false;
+                }
                 break;
-            } else if (in_edit_playpause(o,x,y)) {
-                // PLAY || PAUSE
-                o.active = !o.active;
-                o.menu = false;
+            } else if (in_edit_top(o,x,y)) {
+                if (o.menu) {
+                    // PLAY || PAUSE
+                    o.active = !o.active;
+                    o.menu = false;
+                } else {
+                    // CHANGE TO SQUARE
+                    o.shape = SHAPE_SQUARE;
+                    o.r = 0;
+                    o.g = 0;
+                    o.b = 255;
+                    o.menu_shapes = false;
+                }
+                break;
+            } else if (in_edit_bottom(o,x,y)) {
+                if (o.menu) {
+                    // CHANGE SHAPE
+                    o.menu = false;
+                    o.menu_shapes = true;
+                } else {
+                    // CANCEL MENU
+                    o.menu = true;
+                    o.menu_shapes = false;
+                }
                 break;
             }
         }
