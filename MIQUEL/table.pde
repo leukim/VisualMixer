@@ -29,8 +29,6 @@ void setup() {
     
     settings.add_menuX;
     settings.add_menuY;
-    settings.edit_menuX;
-    settings.edit_menuY;
 }
 
 
@@ -48,7 +46,6 @@ void draw() {
     }
     
     if (settings.add_menu == 1) drawAddMenu();
-    if (settings.edit_menu == 1) drawEditMenu();
 }
 
 void drawAddMenu() {
@@ -129,46 +126,37 @@ void drawAddMenu() {
     else drawSaltire(x,y,20,10,0,64);
 }
 
-void drawEditMenu() {
-    int w = settings.height/8;
-    edit_shape = getCloserEditMenu();
+void drawEditMenu(int id) {
+    Object o = objects[id];
     
-    //RED SALTIRE
-    x = settings.edit_menuX + w;
-    y = settings.edit_menuY;
-    if (edit_shape != SHAPE_RSALTIRE) {
-        noStroke();
-        fill(255,0,0,32);
-    } else {
-        stroke(0,0,0);
-        line(settings.edit_menuX, settings.edit_menuY, settings.edit_menuX+3*w*sqrt(2)/4, settings.edit_menuY+3*w*sqrt(2)/4);
-        line(settings.edit_menuX, settings.edit_menuY, settings.edit_menuX+3*w*sqrt(2)/4, settings.edit_menuY-3*w*sqrt(2)/4);
-        fill(255,0,0,64);
-    }
+    noFill();
+    stroke(0,0,0);
+    strokeWeight(2);
     
-    arc(settings.edit_menuX, settings.edit_menuY, 3*w, 3*w, TWO_PI-QUARTER_PI, TWO_PI);
-    arc(settings.edit_menuX, settings.edit_menuY, 3*w, 3*w, 0, QUARTER_PI);
+    //ellipse(o.x, o.y, 4*o.radius, 4*o.radius);
+    //ellipse(o.x, o.y, 4*o.radius+120, 4*o.radius+120);
     
-    if (edit_shape == SHAPE_RSALTIRE) drawRSaltire(x,y,20,10,1,128);
-    else drawRSaltire(x,y,20,10,0,64);
+    stroke(0,0,0);
+    strokeWeight(1);
     
-    //SALTIRE
-    x = settings.edit_menuX - w;
-    y = settings.edit_menuY;
-    if (edit_shape != SHAPE_SALTIRE) {
-        noStroke();
-        fill(0,0,0,32);
-    } else {
-        stroke(0,0,0);
-        line(settings.edit_menuX, settings.edit_menuY, settings.edit_menuX-3*w*sqrt(2)/4, settings.edit_menuY+3*w*sqrt(2)/4);
-        line(settings.edit_menuX, settings.edit_menuY, settings.edit_menuX-3*w*sqrt(2)/4, settings.edit_menuY-3*w*sqrt(2)/4);
-        fill(0,0,0,64);
-    }
+    fill(0,0,0,63);
+    ellipse(o.x-o.radius-50,o.y,60,60); // LEFT ITEM
+    drawSaltire(o.x-o.radius-50,o.y,20,10,1);
     
-    arc(settings.edit_menuX, settings.edit_menuY, 3*w, 3*w, PI-QUARTER_PI, PI+QUARTER_PI);
+    fill(255,0,0,63);
+    ellipse(o.x+o.radius+50,o.y,60,60); // RIGHT ITEM
+    drawRSaltire(o.x+o.radius+50,o.y,20,10,1);
     
-    if (edit_shape == SHAPE_SALTIRE) drawSaltire(x,y,20,10,1,128);
-    else drawSaltire(x,y,20,10,0,64);
+    if (!o.active) fill(0,153,0,63);
+    else fill(0,0,0,63);
+    ellipse(o.x,o.y-o.radius-50,60,60); // TOP ITEM
+    if (!o.active) drawPlay(o.x, o.y-o.radius-50, 20);
+    else drawPause(o.x, o.y-o.radius-50, 20);
+    
+    fill(255,255,0,63);
+    ellipse(o.x,o.y+o.radius+50,60,60); // BOTTOM ITEM
+    PShape s = loadShape("star.svg");
+    shape(s, o.x-25, o.y+o.radius+25, 50, 50);
 }
 
 void drawItem(int id) {
@@ -179,12 +167,14 @@ void drawItem(int id) {
     int f2 = (frameCount - i.start_frame) / 100;
     
     if (i.moving) {
-        fill(i.r,i.g,i.b,32);
+        if (i.active) fill(i.r,i.g,i.b,32);
+        else fill(127,127,127,32);
         noStroke();
         
         ellipse(i.x, i.y, 25+w, 25+w);
         
-        stroke(i.r,i.g,i.b);
+        if (i.active) stroke(i.r,i.g,i.b);
+        else stroke(127,127,127);
         noFill();
         for (int j = 0; j < 32; j+=2) {
             float a = (TWO_PI*j/32 + f2) % TWO_PI;
@@ -211,7 +201,7 @@ void drawItem(int id) {
         }
     }
     
-    if (i.active || i.moving) fill(i.r,i.g,i.b, FULL_COLOR);
+    if (i.active) fill(i.r,i.g,i.b, FULL_COLOR);
     else fill(127,127,127);
     stroke(0,0,0);
     switch (i.shape) {
@@ -225,6 +215,8 @@ void drawItem(int id) {
             rect(i.x-(i.radius*sqrt(2)/2), i.y-(i.radius*sqrt(2)/2),i.radius*sqrt(2),i.radius*sqrt(2));
             break;
     }
+    
+    if (i.menu) drawEditMenu(id);
 }
 
 // TODO This functions are kept for now for testing (needed for add menu), but will be removed or changed TODO
@@ -250,10 +242,9 @@ void drawSquare(int x, int y, int r, int st, int alpha) {
     rect(x-(r*sqrt(2)/2), y-(r*sqrt(2)/2),r*sqrt(2),r*sqrt(2));
 }
 
-void inner_drawSaltire(int x, int y, int r, int k, int st, int alpha, int cr, int cg, int cb) {
-    fill(cr, cg, cb, alpha);
-    if (st == 0) noStroke();
-    else stroke(0,0,0);
+void inner_drawSaltire(int x, int y, int r, int k, int cr, int cg, int cb) {
+    fill(cr, cg, cb);
+    stroke(0,0,0);
     int t = ((r*sqrt(2))-k)/2;
     int ax = x - (k/sqrt(2));
     int bx = x + (k/sqrt(2));
@@ -276,12 +267,25 @@ void inner_drawSaltire(int x, int y, int r, int k, int st, int alpha, int cr, in
     endShape();
 }
 
-void drawSaltire(int x, int y, int r, int k, int st, int alpha) {
-    inner_drawSaltire(x, y, r, k, st, alpha, 0, 0, 0);
+void drawSaltire(int x, int y, int r, int k) {
+    inner_drawSaltire(x, y, r, k, 0, 0, 0);
 }
 
-void drawRSaltire(int x, int y, int r, int k, int st, int alpha) {
-    inner_drawSaltire(x, y, r, k, st, alpha, 255, 0, 0);
+void drawRSaltire(int x, int y, int r, int k) {
+    inner_drawSaltire(x, y, r, k, 255, 0, 0);
+}
+
+void drawPlay(int x, int y, int r) {
+    fill(0,153,0);
+    stroke(0,0,0);
+    triangle(x+r,y,x-r*sqrt(2)/2,y-r*sqrt(2)/2,x-r*sqrt(2)/2,y+r*sqrt(2)/2);
+}
+
+void drawPause(int x, int y, int r) {
+    fill(0,0,0,127);
+    stroke(0,0,0);
+    rect(x-r*sqrt(2)/2, y-r*sqrt(2)/2, r*sqrt(2)/3, r*sqrt(2));
+    rect(x+r*sqrt(2)/6, y-r*sqrt(2)/2, r*sqrt(2)/3, r*sqrt(2));
 }
 
 // TODO END TODO
@@ -319,34 +323,6 @@ int getCloserAddMenu() {
     return ret;
 }
 
-// TODO Change closer method to point-select, to enable multitouch menus TODO
-int getCloserEditMenu() {
-    int w = settings.height/8;
-    
-    int ret = -1;
-    float distRST = dist(settings.add_menuX+w, settings.add_menuY, mouseX, mouseY);
-    float distST = dist(settings.add_menuX-w, settings.add_menuY, mouseX, mouseY);
-    if (distRST < distST) return SHAPE_RSALTIRE;
-    if (distRST > distST) return SHAPE_SALTIRE;
-    return -1;
-}
-
-int getCloserHold(float threshold) {
-    if (objects.length == 0) return -1;
-    
-    int current = 0;
-    float min_dist = dist(mouseX, mouseY, objects[0].x, objects[0].y);
-    for (int i = 1; i < objects.length; ++i) {
-        float new_dist = dist(mouseX, mouseY, objects[i].x, objects[i].y);
-        if (new_dist < min_dist) {
-            min_dist = new_dist;
-            current = i;
-        }
-    }
-    if (min_dist <= threshold) return current;
-    return -1;
-}
-
 /*
  * STATE MODIFIERS
  */
@@ -363,15 +339,6 @@ void addMenuSelect() {
     if (add_shape != -1) addShape(settings.add_menuX, settings.add_menuY);
 }
 
-void editMenuSelect() {
-    settings.edit_menu = 0;
-    edit_shape = getCloserEditMenu();
-    if (edit_shape == SHAPE_RSALTIRE) {
-        objects.splice(settings.editing,1);
-    }
-    settings.editing = -1;
-}
-
 void addShape(mX, mY) {
     if (add_shape >= 0 && add_shape != SHAPE_SALTIRE) createShape(add_shape, mX, mY);
 }
@@ -384,6 +351,7 @@ void createShape(int shape, int x, int y) {
     o.shape = shape;
     o.active = false;
     o.radius = settings.object_radius;
+    o.menu = false;
     switch(shape) {
         case SHAPE_CIRCLE:
             o.r = 255;
@@ -404,12 +372,59 @@ void createShape(int shape, int x, int y) {
     objects.push(o);
 }
 
-void editShapeMenu() {
-    settings.edit_menuX = mouseX;
-    settings.edit_menuY = mouseY;
-    settings.edit_menu = 1;
-    settings.editing = getCloserHold(settings.threshold);
+//////////////////////////////////////////////
+// TAP
+//////////////////////////////////////////////
+
+int open_menu(int x, int y) {
+    for (int i = 0; i < objects.length; ++i) {
+        Object o = objects[i];
+        if (dist(x,y,o.x,o.y) <= o.radius) {
+            objects[i].menu = true;
+            return i;
+        }
+    }
+    return -1;
 }
+
+boolean in_edit_cancel(Object o, int x, int y) {
+    return dist(x, y, o.x-o.radius-50, o.y) < 30;
+}
+
+boolean in_edit_delete(Object o, int x, int y) {
+    return dist(x, y, o.x+o.radius+50, o.y) < 30;
+}
+
+boolean in_edit_playpause(Object o, int x, int y) {
+    return dist(x, y, o.x, o.y-o.radius-50) < 30;
+}
+
+int select_menu(int x, int y) {
+    for (int i = 0; i < objects.length; ++i) {
+        Object o = objects[i];
+        if (o.menu) {
+            if (in_edit_cancel(o,x,y)) {
+                // CANCEL MENU
+                o.menu = false;
+                break;
+            } else if (in_edit_delete(o,x,y)) {
+                // DELETE ITEM
+                objects.splice(i,1);
+                break;
+            } else if (in_edit_playpause(o,x,y)) {
+                // PLAY || PAUSE
+                o.active = !o.active;
+                o.menu = false;
+                break;
+            }
+        }
+    }
+    return -1;
+}
+
+//////////////////////////////////////////////
+// DRAG
+//////////////////////////////////////////////
 
 void startDrag() {
     int found = 0;
@@ -446,24 +461,27 @@ var hammer = Hammer(document.getElementById('table'));
 
 hammer.on("hold touch dragstart drag dragend", function(event) {
     event.gesture.preventDefault();
+    int x = event.gesture.touches[0].pageX; 
+    int y = event.gesture.touches[0].pageY;
     
     switch (event.type) {
         case "hold":
-            if (getCloserHold(settings.threshold) != -1) editShapeMenu();
-            else addShapeMenu();
+            int menu = open_menu(x,y);
+            if (menu == -1) addShapeMenu(); // TODO This will be removed
             break;
         case "touch":
-            if (settings.add_menu == 1) addMenuSelect();
-            if (settings.edit_menu == 1) editMenuSelect();
+            // TODO Detect if on a keyboard and play
+            int done = select_menu(x,y);
+            if (settings.add_menu == 1) addMenuSelect(); // TODO This will be removed
             break;
         case "dragstart":
             startDrag();
             break;
         case "drag":
-            processDrag(event.gesture.touches[0].pageX, event.gesture.touches[0].pageY);
+            processDrag(x,y);
             break;
         case "dragend":
-            endDrag(event.gesture.touches[0].pageX, event.gesture.touches[0].pageY);
+            endDrag(x,y);
             break;
     }
 });
