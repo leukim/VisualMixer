@@ -18,6 +18,7 @@ int edit_shape;
 void setup() {
     size(window.innerWidth, window.innerHeight);
     settings.object_radius = 20;
+	settings.corner_radius = 80;
     settings.width = window.innerWidth;
     settings.height = window.innerHeight;
     settings.drag_distance = 40;
@@ -41,11 +42,30 @@ void draw() {
     else cursor(ARROW);
     background(255,255,255);
     
+	drawCorners();
+	
     for (int i = 0; i < objects.length; ++i) {
         drawItem(i);
     }
     
     if (settings.add_menu == 1) drawAddMenu();
+}
+
+void drawCorners() {
+	int r = settings.corner_radius;
+	fill(255,102,0);
+    stroke(255,51,0);
+    ellipse(0, 0, 2*r, 2*r);
+	ellipse(settings.width, settings.height, 2*r, 2*r);
+	ellipse(settings.width, 0, 2*r, 2*r);
+	ellipse(0, settings.height, 2*r, 2*r);
+}
+
+boolean isOnCornerArea(int x, int y) {
+	if (dist(x,y,0.0,0.0) <= settings.corner_radius || dist(x,y,settings.width,settings.height) <= settings.corner_radius || dist(x,y,settings.width,0.0) <= settings.corner_radius || dist(x,y,0.0,settings.height) <= settings.corner_radius) {
+			return true;
+	}
+	return false;
 }
 
 void drawAddMenu() {
@@ -264,6 +284,8 @@ void drawItem(int id) {
     else if (i.menu) drawEditMenu(id);
 }
 
+
+
 // TODO This functions are kept for now for testing (needed for add menu), but will be removed or changed TODO
 
 void drawCircle(int x, int y, int r, int st, int alpha) {
@@ -388,7 +410,7 @@ void addShape(mX, mY) {
     if (add_shape >= 0 && add_shape != SHAPE_SALTIRE) createShape(add_shape, mX, mY);
 }
 
-void createShape(int shape, int x, int y) {
+Object createShape(int shape, int x, int y) {
     var o = new Object();
     o.x = x;
     o.y = y;
@@ -416,6 +438,7 @@ void createShape(int shape, int x, int y) {
             break;
     }
     objects.push(o);
+	return o;
 }
 
 //
@@ -515,19 +538,34 @@ int select_menu(int x, int y) {
 //
 
 void startDrag() {
+	console.log("Start drag.");
     int found = 0;
     for (int i = 0; i < objects.length && found == 0; ++i) {
         if (dist(mouseX,mouseY,objects[i].x,objects[i].y) <= settings.drag_distance) {
+			console.log("Object found.");
             found = 1;
             objects[i].moving = true;
         }
     }
+	// create object if draged on corner area.
+	if (found == 0 && isOnCornerArea(mouseX, mouseY)) {
+		console.log("Drag started on corner area.");
+		Object o = createShape(SHAPE_CIRCLE, mouseX, mouseY);
+		o.moving = true;
+		found = 1;
+	}
 }
 
 void endDrag(int x, int y) {
     for (int i = 0; i < objects.length; i++) {
         if (objects[i].x == x && objects[i].y == y) {
             objects[i].moving = false;
+			
+			// delete object if drag released on corner area.
+			if (isOnCornerArea(objects[i].x,objects[i].y)) {
+				console.log("Object removed.");
+				objects.pop(objects[i]);
+			}
         }
     }
 }
