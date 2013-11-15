@@ -38,8 +38,6 @@ void setup() {
  */
 
 void draw() {
-    if (settings.moving != -1 || settings.add_menu == 1) noCursor();
-    else cursor(ARROW);
     background(255,255,255);
     
 	drawCorners();
@@ -47,8 +45,6 @@ void draw() {
     for (int i = 0; i < objects.length; ++i) {
         drawItem(i);
     }
-    
-    if (settings.add_menu == 1) drawAddMenu();
 }
 
 void drawCorners() {
@@ -68,93 +64,8 @@ boolean isOnCornerArea(int x, int y) {
 	return false;
 }
 
-void drawAddMenu() {
-    int w = settings.height/8;
-    add_shape = getCloserAddMenu();
-    
-    // CIRCLE
-    int x = settings.add_menuX;
-    int y = settings.add_menuY + w;
-    if (add_shape != SHAPE_CIRCLE) {
-        noStroke();
-        fill(255,0,0,32);
-    } else {
-        stroke(0,0,0);
-        line(settings.add_menuX, settings.add_menuY, settings.add_menuX-3*w*sqrt(2)/4, settings.add_menuY+3*w*sqrt(2)/4);
-        line(settings.add_menuX, settings.add_menuY, settings.add_menuX+3*w*sqrt(2)/4, settings.add_menuY+3*w*sqrt(2)/4);
-        fill(255,0,0,64);
-    }
-    
-    arc(settings.add_menuX, settings.add_menuY, 3*w, 3*w, QUARTER_PI, HALF_PI+QUARTER_PI);
-    
-    if (add_shape == SHAPE_CIRCLE) drawCircle(x,y,20,1,128);
-    else drawCircle(x,y,20,0,64);
-    
-    // TRIANGLE
-    x = settings.add_menuX;
-    y = settings.add_menuY - w;
-    if (add_shape != SHAPE_TRIANGLE) {
-        noStroke();
-        fill(0,255,0,32);
-    } else {
-        stroke(0,0,0);
-        line(settings.add_menuX, settings.add_menuY, settings.add_menuX-3*w*sqrt(2)/4, settings.add_menuY-3*w*sqrt(2)/4);
-        line(settings.add_menuX, settings.add_menuY, settings.add_menuX+3*w*sqrt(2)/4, settings.add_menuY-3*w*sqrt(2)/4);
-        fill(0,255,0,64);
-    }
-    
-    arc(settings.add_menuX, settings.add_menuY, 3*w, 3*w, PI+QUARTER_PI,TWO_PI-QUARTER_PI);
-    
-    if (add_shape == SHAPE_TRIANGLE) drawTriangle(x,y,20,1,128);
-    else drawTriangle(x,y,20,0,64);
-    
-    //SQUARE
-    x = settings.add_menuX + w;
-    y = settings.add_menuY;
-    if (add_shape != SHAPE_SQUARE) {
-        noStroke();
-        fill(0,0,255,32);
-    } else {
-        stroke(0,0,0);
-        line(settings.add_menuX, settings.add_menuY, settings.add_menuX+3*w*sqrt(2)/4, settings.add_menuY+3*w*sqrt(2)/4);
-        line(settings.add_menuX, settings.add_menuY, settings.add_menuX+3*w*sqrt(2)/4, settings.add_menuY-3*w*sqrt(2)/4);
-        fill(0,0,255,64);
-    }
-    
-    arc(settings.add_menuX, settings.add_menuY, 3*w, 3*w, TWO_PI-QUARTER_PI, TWO_PI);
-    arc(settings.add_menuX, settings.add_menuY, 3*w, 3*w, 0, QUARTER_PI);
-    
-    if (add_shape == SHAPE_SQUARE) drawSquare(x,y,20,1,128);
-    else drawSquare(x,y,20,0,64);
-    
-    //SALTIRE
-    x = settings.add_menuX - w;
-    y = settings.add_menuY;
-    if (add_shape != SHAPE_SALTIRE) {
-        noStroke();
-        fill(0,0,0,32);
-    } else {
-        stroke(0,0,0);
-        line(settings.add_menuX, settings.add_menuY, settings.add_menuX-3*w*sqrt(2)/4, settings.add_menuY+3*w*sqrt(2)/4);
-        line(settings.add_menuX, settings.add_menuY, settings.add_menuX-3*w*sqrt(2)/4, settings.add_menuY-3*w*sqrt(2)/4);
-        fill(0,0,0,64);
-    }
-    
-    arc(settings.add_menuX, settings.add_menuY, 3*w, 3*w, PI-QUARTER_PI, PI+QUARTER_PI);
-    
-    if (add_shape == SHAPE_SALTIRE) drawSaltire(x,y,20,10,1,128);
-    else drawSaltire(x,y,20,10,0,64);
-}
-
 void drawEditMenu(int id) {
     Object o = objects[id];
-    
-    //noFill();
-    //stroke(0,0,0);
-    //strokeWeight(2);
-    
-    //ellipse(o.x, o.y, 4*o.radius, 4*o.radius);
-    //ellipse(o.x, o.y, 4*o.radius+120, 4*o.radius+120);
     
     stroke(0,0,0);
     strokeWeight(1);
@@ -284,31 +195,6 @@ void drawItem(int id) {
     else if (i.menu) drawEditMenu(id);
 }
 
-
-
-// TODO This functions are kept for now for testing (needed for add menu), but will be removed or changed TODO
-
-void drawCircle(int x, int y, int r, int st, int alpha) {
-    fill(255,0,0, alpha);
-    if (st == 0) noStroke();
-    else stroke(0,0,0);
-    ellipse(x, y, 2*r, 2*r);
-}
-
-void drawTriangle(int x, int y, int r, int st, int alpha) {
-    fill(0,255,0, alpha);
-    if (st == 0) noStroke();
-    else stroke(0,0,0);
-    triangle(x,y-r,x+r*sqrt(2)/2,y+r*sqrt(2)/2,x-r*sqrt(2)/2,y+r*sqrt(2)/2);
-}
-
-void drawSquare(int x, int y, int r, int st, int alpha) {
-    fill(0,0,255, alpha);
-    if (st == 0) noStroke();
-    else stroke(0,0,0);
-    rect(x-(r*sqrt(2)/2), y-(r*sqrt(2)/2),r*sqrt(2),r*sqrt(2));
-}
-
 void inner_drawSaltire(int x, int y, int r, int k, int cr, int cg, int cb) {
     fill(cr, cg, cb);
     stroke(0,0,0);
@@ -355,8 +241,6 @@ void drawPause(int x, int y, int r) {
     rect(x+r*sqrt(2)/6, y-r*sqrt(2)/2, r*sqrt(2)/3, r*sqrt(2));
 }
 
-// TODO END TODO
-
 /*
  * HELPERS
  */
@@ -393,22 +277,6 @@ int getCloserAddMenu() {
 /*
  * STATE MODIFIERS
  */
-
-void addShapeMenu() {
-    settings.add_menuX = mouseX;
-    settings.add_menuY = mouseY;
-    settings.add_menu = 1;
-}
-
-void addMenuSelect() {
-    settings.add_menu = 0;
-    add_shape = getCloserAddMenu();
-    if (add_shape != -1) addShape(settings.add_menuX, settings.add_menuY);
-}
-
-void addShape(mX, mY) {
-    if (add_shape >= 0 && add_shape != SHAPE_SALTIRE) createShape(add_shape, mX, mY);
-}
 
 Object createShape(int shape, int x, int y) {
     var o = new Object();
@@ -583,13 +451,11 @@ void processDrag(int x, int y) {
 
 void handleHold(int x, int y) {
   int menu = open_menu(x, y);
-  if (menu == -1) addShapeMenu(); // TODO This will be removed
 }
 
 void handleTouch(int x, int y) {
 	// TODO Detect if on a keyboard and play
     int done = select_menu(x, y);
-    if (settings.add_menu == 1) addMenuSelect(); // TODO This will be removed
 }
 
 
