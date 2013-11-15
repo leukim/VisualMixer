@@ -14,10 +14,11 @@
     //
     // HAMMER.JS
     //
+    Hammer.plugins.fakeMultitouch(); // FOR DEV PURPOSES
 	console.log('Init Hammer.js!');
     var hammer = Hammer(document.getElementById("visual-mixer-canvas"));
 
-    hammer.on("hold touch dragstart drag dragend", function(event) {
+    hammer.on("hold touch dragstart drag dragend pinch", function(event) {
 	  var PInstance = Processing.getInstanceById("visual-mixer-canvas");
       event.gesture.preventDefault();
       var x = event.gesture.touches[0].pageX; 
@@ -38,6 +39,10 @@
         break;
       case "dragend":
         PInstance.endDrag(x, y);
+        break;
+      case "pinch":
+        PInstance.handlePinch(event.gesture.center.pageX, event.gesture.center.pageY, event.gesture.scale, event);
+        console.log(event);
         break;
       }
     }

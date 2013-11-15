@@ -60,6 +60,8 @@ void drawCorners() {
 	    ellipse(settings.width, 0, 3*r*i/50, 3*r*i/50);
 	    ellipse(0, settings.height, 3*r*i/50, 3*r*i/50);
     }
+    
+    
 }
 
 boolean isOnCornerArea(int x, int y) {
@@ -139,7 +141,7 @@ void drawItem(int id) {
     int f = (frameCount - i.start_frame) % w;
     int f2 = (frameCount - i.start_frame) / 100;
     
-    if (i.moving) {
+    if (false && i.moving) {
         if (i.effect != EF_OFF) fill(i.r,i.g,i.b,32);
         else fill(127,127,127,32);
         noStroke();
@@ -158,19 +160,19 @@ void drawItem(int id) {
                 arc(i.x, i.y, 25+w, 25+w,0,b);
             }
         }
-    } else if (i.effect != EF_OFF) {
-        fill(i.r,i.g,i.b,5);
-        noStroke();
-        for (int j = 0; j <= 50; ++j) {
-            ellipse(i.x, i.y, i.radius+j*w/50, i.radius+j*w/50);
-        }
-        
-        noFill();
-        for (int j = 0; j <= 5; ++j) {
-            int r = 2*i.radius+((f + j*w/5)%w);
-            stroke(i.r,i.g,i.b,255*(1-(r/(w+i.radius))));
-            ellipse(i.x, i.y, r, r);
-        }
+    }
+    
+    fill(i.r,i.g,i.b,5);
+    noStroke();
+    for (int j = 0; j <= 50; ++j) {
+        ellipse(i.x, i.y, i.radius+j*i.halo/50, i.radius+j*i.halo/50);
+    }
+    
+    noFill();
+    for (int j = 0; j <= 5; ++j) {
+        int r = 2*i.radius+((f + j*w/5)%w);
+        stroke(i.r,i.g,i.b,255*(1-(r/(w+i.radius))));
+        ellipse(i.x, i.y, r, r);
     }
     
     if (i.effect != EF_OFF) fill(i.r,i.g,i.b, FULL_COLOR);
@@ -242,6 +244,7 @@ Object createShape(int effect, int x, int y) {
     o.shape = shape;
     o.active = false;
     o.radius = settings.object_radius;
+    o.halo = settings.height/2;
     o.menu = false;
     o.effect = effect;
     switch(effect) {
@@ -406,18 +409,18 @@ int select_menu(int x, int y) {
 //
 
 void startDrag() {
-	console.log("Start drag.");
+	//console.log("Start drag.");
     int found = 0;
     for (int i = 0; i < objects.length && found == 0; ++i) {
         if (dist(mouseX,mouseY,objects[i].x,objects[i].y) <= settings.drag_distance) {
-			console.log("Object found.");
+			//console.log("Object found.");
             found = 1;
             objects[i].moving = true;
         }
     }
 	// create object if draged on corner area.
 	if (found == 0 && isOnCornerArea(mouseX, mouseY)) { // TODO Should not use mouseX and mouseX
-		console.log("Drag started on corner area.");
+		//console.log("Drag started on corner area.");
 		Object o = createShape(EF_OFF, mouseX, mouseY); // TODO Should not use mouseX and mouseX
 		o.moving = true;
 		found = 1;
@@ -431,7 +434,7 @@ void endDrag(int x, int y) {
 			
 			// delete object if drag released on corner area.
 			if (isOnCornerArea(objects[i].x,objects[i].y)) {
-				console.log("Object removed.");
+				//console.log("Object removed.");
 				objects.pop(objects[i]);
 			}
         }
@@ -458,6 +461,22 @@ void handleTouch(int x, int y) {
     int done = select_menu(x, y);
 }
 
+//
+// DRAG
+//
+
+void handlePinch(int x, int y, float scale, Object event) {
+    fill(0);
+    ellipse(event.gesture.touches[0].pageX, event.gesture.touches[0].pageY, 5,5);
+    ellipse(event.gesture.touches[1].pageX, event.gesture.touches[1].pageY, 5,5);
+    for (int i = 0; i < objects.length; ++i) {
+        Object o = objects[i];
+        if (dist(x,y,o.x,o.y) < o.halo) {
+            //o.halo *= scale;
+            o.halo = dist(event.gesture.touches[0].pageX, event.gesture.touches[0].pageY,event.gesture.touches[1].pageX, event.gesture.touches[1].pageY);
+        }
+    }
+}
 
 
 
