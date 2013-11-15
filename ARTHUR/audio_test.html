@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<!-- HTML5 Hello world by kirupa - http://www.kirupa.com/html5/getting_your_feet_wet_html5_pg1.htm -->
+<html lang="en-us">
+
+<head>
+<meta charset="utf-8">
+<title>Hello...</title>
+</head>
+
+<body>
+<canvas id="myCanvas" width="500" height="400" style="border:1px solid #c3c3c3;">
+<script> 
+var actx = new webkitAudioContext();
+var OSC1 = actx.createOscillator();
+OSC1.frequency.value = 0;
+
+var canvas = document.getElementById("myCanvas");
+var context = canvas.getContext("2d");
+
+canvas.addEventListener('mousedown', doSomething, false);
+canvas.addEventListener('mouseup', stop, false);
+
+
+function playNote(value) {
+  // Assume a new source was created from a buffer.
+ // OSC1.detune.value = semitones * 100;
+ // OSC1.start(0);
+    OSC1.connect(actx.destination);
+    OSC1.frequency.value = value;
+    OSC1.start(1);
+}
+
+function doSomething(e) {
+    console.log("OK");
+    playNote(e.x);
+}
+function stop(e) {
+    console.log("STOP");
+    OSC1.disconnect();
+}
+
+</script>
+
+</body>
+</html>
