@@ -1,11 +1,16 @@
-int SHAPE_CIRCLE = 0;
-int SHAPE_SQUARE = 1;
-int SHAPE_TRIANGLE = 2;
-int SHAPE_SALTIRE = 3;
-int SHAPE_RSALTIRE = 4;
+String EF_OFF = "";
+String EF_CHORUS = "C";
+String EF_DELAY = "D";
+String EF_FLANGER = "F";
+String EF_MODULATOR = "M";
+String EF_HARMONIZER = "H";
+String EF_OVERDRIVER = "O";
+String EF_WAHWAH = "W";
+String EF_REVER = "R";
 
 int FULL_COLOR = 255;
 int HALF_COLOR = 127;
+int QUARTER_COLOR = 63;
 
 var objects = new Array();
 var settings = new Object();
@@ -22,14 +27,11 @@ void setup() {
     settings.width = window.innerWidth;
     settings.height = window.innerHeight;
     settings.drag_distance = 40;
-    settings.moving = -1;
-    settings.editing = -1;
-    settings.add_menu = 0;
-    settings.edit_menu = 0;
-    settings.threshold = 40;
     
-    settings.add_menuX;
-    settings.add_menuY;
+    strokeWeight(2);
+    
+    arial = loadFont("resources/arial.ttf");
+    textFont(arial);
 }
 
 
@@ -71,70 +73,63 @@ void drawEditMenu(int id) {
     Object o = objects[id];
     
     stroke(0,0,0);
-    strokeWeight(1);
+    textSize(50);
     
-    fill(0,0,0,63);
-    ellipse(o.x-o.radius-50,o.y,60,60); // LEFT ITEM
-    drawSaltire(o.x-o.radius-50,o.y,20,10,1);
+    fill(255,255,255);
+    ellipse(o.x-o.radius-75,o.y,60,60); // LEFT ITEM
+    fill(255,0,0,QUARTER_COLOR);
+    ellipse(o.x-o.radius-75,o.y,60,60); // LEFT ITEM
+    fill(0,0,0);
+    text("C", o.x-o.radius-75-20,o.y+20);
     
-    fill(255,0,0,63);
-    ellipse(o.x+o.radius+50,o.y,60,60); // RIGHT ITEM
-    drawRSaltire(o.x+o.radius+50,o.y,20,10,1);
+    fill(255,255,255);
+    ellipse(o.x+o.radius+75,o.y,60,60); // RIGHT ITEM
+    fill(0,255,0,QUARTER_COLOR);
+    ellipse(o.x+o.radius+75,o.y,60,60); // RIGHT ITEM
+    fill(0,0,0);
+    text("D",o.x+o.radius+75-20, o.y+20);
     
-    if (!o.active) fill(0,153,0,63);
-    else fill(0,0,0,63);
-    ellipse(o.x,o.y-o.radius-50,60,60); // TOP ITEM
-    if (!o.active) drawPlay(o.x, o.y-o.radius-50, 20);
-    else drawPause(o.x, o.y-o.radius-50, 20);
+    fill(255,255,255);
+    ellipse(o.x,o.y-o.radius-75,60,60); // TOP ITEM
+    fill(0,0,255,QUARTER_COLOR);    
+    ellipse(o.x,o.y-o.radius-75,60,60); // TOP ITEM
+    fill(0,0,0);
+    text("F",o.x-20, o.y-o.radius-75+20);
     
-    fill(255,255,0,63);
-    ellipse(o.x,o.y+o.radius+50,60,60); // BOTTOM ITEM
-    stroke(0,0,0);
-    int r = 10;
-    int px = o.x-r*3*sqrt(2)/4;
-    int py = o.y+o.radius+50-r*3*sqrt(2)/4;
-    fill(255,0,0);
-    ellipse(px, py, 2*r, 2*r);
-    px = o.x+r*3*sqrt(2)/4;
-    py = o.y+o.radius+50-r*3*sqrt(2)/4;
-    fill(0,255,0);
-    triangle(px,py-r,px+r*sqrt(2)/2,py+r*sqrt(2)/2,px-r*sqrt(2)/2,py+r*sqrt(2)/2);
-    px = o.x;
-    py = o.y+o.radius+50+r;
-    fill(0,0,255);
-    rect(px-(r*sqrt(2)/2), py-(r*sqrt(2)/2),r*sqrt(2),r*sqrt(2));
-}
-
-void drawShapesMenu(int id) {
-    Object o = objects[id];
+    fill(255,255,255);
+    ellipse(o.x,o.y+o.radius+75,60,60); // BOTTOM ITEM
+    fill(255,255,0,QUARTER_COLOR);    
+    ellipse(o.x,o.y+o.radius+75,60,60); // BOTTOM ITEM
+    fill(0,0,0);
+    text("M",o.x-20, o.y+o.radius+75+20);
     
-    stroke(0,0,0);
-    strokeWeight(1);
+    fill(255,255,255);
+    ellipse(o.x-o.radius-50,o.y-o.radius-50,60,60); // TOP LEFT ITEM
+    fill(255,0,255,QUARTER_COLOR);
+    ellipse(o.x-o.radius-50,o.y-o.radius-50,60,60); // TOP LEFT ITEM
+    fill(0,0,0);
+    text("H",o.x-o.radius-50-20, o.y-o.radius-50+20);
     
-    fill(255,0,0,63);
-    ellipse(o.x-o.radius-50,o.y,60,60); // LEFT ITEM
+    fill(255,255,255);
+    ellipse(o.x+o.radius+50,o.y-o.radius-50,60,60); // TOP RIGHT ITEM
+    fill(0,255,255,QUARTER_COLOR);
+    ellipse(o.x+o.radius+50,o.y-o.radius-50,60,60); // TOP RIGHT ITEM
+    fill(0,0,0);
+    text("O",o.x+o.radius+50-20, o.y-o.radius-50+20);
     
-    int r = 20;
-    int px = o.x-o.radius-50;
-    int py = o.y;
-    ellipse(px, py, 2*r, 2*r); // CIRCLE
+    fill(255,255,255);
+    ellipse(o.x-o.radius-50,o.y+o.radius+50,60,60); // BOTTOM LEFT ITEM
+    fill(127,127,63,QUARTER_COLOR);
+    ellipse(o.x-o.radius-50,o.y+o.radius+50,60,60); // BOTTOM LEFT ITEM
+    fill(0,0,0);
+    text("W",o.x-o.radius-50-20, o.y+o.radius+50+20);
     
-    fill(0,255,0,63);
-    ellipse(o.x+o.radius+50,o.y,60,60); // RIGHT ITEM
-    px = o.x+o.radius+50;
-    py = o.y;
-    triangle(px,py-r,px+r*sqrt(2)/2,py+r*sqrt(2)/2,px-r*sqrt(2)/2,py+r*sqrt(2)/2);
-    
-    fill(0,0,255,63);
-    ellipse(o.x,o.y-o.radius-50,60,60); // TOP ITEM
-    px = o.x;
-    py = o.y-o.radius-50;
-    rect(px-(r*sqrt(2)/2), py-(r*sqrt(2)/2),r*sqrt(2),r*sqrt(2));
-    
-    
-    fill(0,0,0,63);
-    ellipse(o.x,o.y+o.radius+50,60,60); // BOTTOM ITEM
-    drawSaltire(o.x,o.y+o.radius+50,20,10,1);
+    fill(255,255,255);
+    ellipse(o.x+o.radius+50,o.y+o.radius+50,60,60); // BOTTOM RIGHT ITEM
+    fill(127,63,127,QUARTER_COLOR);
+    ellipse(o.x+o.radius+50,o.y+o.radius+50,60,60); // BOTTOM RIGHT ITEM
+    fill(0,0,0);
+    text("R",o.x+o.radius+50-20, o.y+o.radius+50+20);
 }
 
 void drawItem(int id) {
@@ -145,13 +140,13 @@ void drawItem(int id) {
     int f2 = (frameCount - i.start_frame) / 100;
     
     if (i.moving) {
-        if (i.active) fill(i.r,i.g,i.b,32);
+        if (i.effect != EF_OFF) fill(i.r,i.g,i.b,32);
         else fill(127,127,127,32);
         noStroke();
         
         ellipse(i.x, i.y, 25+w, 25+w);
         
-        if (i.active) stroke(i.r,i.g,i.b);
+        if (i.effect != EF_OFF) stroke(i.r,i.g,i.b);
         else stroke(127,127,127);
         noFill();
         for (int j = 0; j < 32; j+=2) {
@@ -163,14 +158,13 @@ void drawItem(int id) {
                 arc(i.x, i.y, 25+w, 25+w,0,b);
             }
         }
-    } else if (i.active) {
+    } else if (i.effect != EF_OFF) {
         fill(i.r,i.g,i.b,5);
         noStroke();
         for (int j = 0; j <= 50; ++j) {
             ellipse(i.x, i.y, i.radius+j*w/50, i.radius+j*w/50);
         }
         
-        strokeWeight(3);
         noFill();
         for (int j = 0; j <= 5; ++j) {
             int r = 2*i.radius+((f + j*w/5)%w);
@@ -179,23 +173,15 @@ void drawItem(int id) {
         }
     }
     
-    if (i.active) fill(i.r,i.g,i.b, FULL_COLOR);
+    if (i.effect != EF_OFF) fill(i.r,i.g,i.b, FULL_COLOR);
     else fill(127,127,127);
     stroke(0,0,0);
-    switch (i.shape) {
-        case SHAPE_CIRCLE:
-            ellipse(i.x, i.y, 2*i.radius, 2*i.radius);
-            break;
-        case SHAPE_TRIANGLE:
-            triangle(i.x,i.y-i.radius,i.x+i.radius*sqrt(2)/2,i.y+i.radius*sqrt(2)/2,i.x-i.radius*sqrt(2)/2,i.y+i.radius*sqrt(2)/2);
-            break;
-        case SHAPE_SQUARE:
-            rect(i.x-(i.radius*sqrt(2)/2), i.y-(i.radius*sqrt(2)/2),i.radius*sqrt(2),i.radius*sqrt(2));
-            break;
-    }
+    ellipse(i.x, i.y, 2*i.radius, 2*i.radius);
+    fill(0,0,0);
+    textSize(30);
+    text(i.effect, i.x-10, i.y+10);
     
-    if (i.menu_shapes) drawShapesMenu(id);
-    else if (i.menu) drawEditMenu(id);
+    if (i.menu) drawEditMenu(id);
 }
 
 void inner_drawSaltire(int x, int y, int r, int k, int cr, int cg, int cb) {
@@ -248,7 +234,7 @@ void drawPause(int x, int y, int r) {
  * STATE MODIFIERS
  */
 
-Object createShape(int shape, int x, int y) {
+Object createShape(int effect, int x, int y) {
     var o = new Object();
     o.x = x;
     o.y = y;
@@ -257,22 +243,52 @@ Object createShape(int shape, int x, int y) {
     o.active = false;
     o.radius = settings.object_radius;
     o.menu = false;
-    o.menu_shapes = false;
-    switch(shape) {
-        case SHAPE_CIRCLE:
+    o.effect = effect;
+    switch(effect) {
+        case EF_OFF:
+            o.r = 127;
+            o.g = 127;
+            o.b = 127;
+            break;
+        case EF_CHORUS:
             o.r = 255;
             o.g = 0;
             o.b = 0;
             break;
-        case SHAPE_TRIANGLE:
+        case EF_DELAY:
             o.r = 0;
             o.g = 255;
             o.b = 0;
             break;
-        case SHAPE_SQUARE:
+        case EF_FLANGER:
             o.r = 0;
             o.g = 0;
             o.b = 255;
+            break;
+        case EF_MODULATOR:
+            o.r = 255;
+            o.g = 255;
+            o.b = 0;
+            break;
+        case EF_HARMONIZER:
+            o.r = 255;
+            o.g = 0;
+            o.b = 255;
+            break;
+        case EF_OVERDRIVER:
+            o.r = 0;
+            o.g = 255;
+            o.b = 255;
+            break;
+        case EF_WAHWAH:
+            o.r = 127;
+            o.g = 127;
+            o.b = 63;
+            break;
+        case EF_REVER:
+            o.r = 127;
+            o.g = 63;
+            o.b = 127;
             break;
     }
     objects.push(o);
@@ -295,76 +311,90 @@ int open_menu(int x, int y) {
 }
 
 boolean in_edit_left(Object o, int x, int y) {
-    return dist(x, y, o.x-o.radius-50, o.y) < 30;
+    return dist(x, y, o.x-o.radius-75, o.y) < 30;
 }
 
 boolean in_edit_right(Object o, int x, int y) {
-    return dist(x, y, o.x+o.radius+50, o.y) < 30;
+    return dist(x, y, o.x+o.radius+75, o.y) < 30;
 }
 
 boolean in_edit_top(Object o, int x, int y) {
-    return dist(x, y, o.x, o.y-o.radius-50) < 30;
+    return dist(x, y, o.x, o.y-o.radius-75) < 30;
 }
 
 boolean in_edit_bottom(Object o, int x, int y) {
-    return dist(x, y, o.x, o.y+o.radius+50) < 30;
+    return dist(x, y, o.x, o.y+o.radius+75) < 30;
 }
+
+boolean in_edit_topright(Object o, int x, int y) {
+    return dist(x, y, o.x+o.radius+50, o.y-o.radius-50) < 30;
+}
+
+boolean in_edit_topleft(Object o, int x, int y) {
+    return dist(x, y, o.x-o.radius-50, o.y-o.radius-50) < 30;
+}
+
+boolean in_edit_bottomleft(Object o, int x, int y) {
+    return dist(x, y, o.x-o.radius-50, o.y+o.radius+50) < 30;
+}
+
+boolean in_edit_bottomright(Object o, int x, int y) {
+    return dist(x, y, o.x+o.radius+50, o.y+o.radius+50) < 30;
+}
+
 
 int select_menu(int x, int y) {
     for (int i = 0; i < objects.length; ++i) {
         Object o = objects[i];
-        if (o.menu || o.menu_shapes) {
+        if (o.menu) {
             if (in_edit_left(o,x,y)) {
-                if (o.menu) {
-                    // CANCEL MENU
-                    o.menu = false;
-                } else {
-                    // CHANGE TO CIRCLE
-                    o.shape = SHAPE_CIRCLE;
-                    o.r = 255;
-                    o.g = 0;
-                    o.b = 0;
-                    o.menu_shapes = false;
-                } 
-                break;
+                o.effect = EF_CHORUS;
+                o.r = 255;
+                o.g = 0;
+                o.b = 0;
+                o.menu = false;
             } else if (in_edit_right(o,x,y)) {
-                if (o.menu) {
-                    // DELETE ITEM
-                    objects.splice(i,1);
-                } else {
-                    // CHANGE TO TRIANGLE
-                    o.shape = SHAPE_TRIANGLE;
-                    o.r = 0;
-                    o.g = 255;
-                    o.b = 0;
-                    o.menu_shapes = false;
-                }
-                break;
+                o.effect = EF_DELAY;
+                o.r = 0;
+                o.g = 255;
+                o.b = 0;
+                o.menu = false;
             } else if (in_edit_top(o,x,y)) {
-                if (o.menu) {
-                    // PLAY || PAUSE
-                    o.active = !o.active;
-                    o.menu = false;
-                } else {
-                    // CHANGE TO SQUARE
-                    o.shape = SHAPE_SQUARE;
-                    o.r = 0;
-                    o.g = 0;
-                    o.b = 255;
-                    o.menu_shapes = false;
-                }
-                break;
+                o.effect = EF_FLANGER;
+                o.r = 0;
+                o.g = 0;
+                o.b = 255;
+                o.menu = false;
             } else if (in_edit_bottom(o,x,y)) {
-                if (o.menu) {
-                    // CHANGE SHAPE
-                    o.menu = false;
-                    o.menu_shapes = true;
-                } else {
-                    // CANCEL MENU
-                    o.menu = true;
-                    o.menu_shapes = false;
-                }
-                break;
+                o.effect = EF_MODULATOR;
+                o.r = 255;
+                o.g = 255;
+                o.b = 0;
+                o.menu = false;
+            } else if (in_edit_topleft(o,x,y)) {
+                o.effect = EF_HARMONIZER;
+                o.r = 255;
+                o.g = 0;
+                o.b = 255;
+                o.menu = false;
+            } else if (in_edit_topright(o,x,y)) {
+                o.effect = EF_OVERDRIVER;
+                o.r = 0;
+                o.g = 255;
+                o.b = 255;
+                o.menu = false;
+            } else if (in_edit_bottomleft(o,x,y)) {
+                o.effect = EF_WAHWAH;
+                o.r = 127;
+                o.g = 127;
+                o.b = 63;
+                o.menu = false;
+            } else if (in_edit_bottomright(o,x,y)) {
+                o.effect = EF_REVER;
+                o.r = 127;
+                o.g = 63;
+                o.b = 127;
+                o.menu = false;
             }
         }
     }
@@ -386,9 +416,9 @@ void startDrag() {
         }
     }
 	// create object if draged on corner area.
-	if (found == 0 && isOnCornerArea(mouseX, mouseY)) {
+	if (found == 0 && isOnCornerArea(mouseX, mouseY)) { // TODO Should not use mouseX and mouseX
 		console.log("Drag started on corner area.");
-		Object o = createShape(SHAPE_CIRCLE, mouseX, mouseY);
+		Object o = createShape(EF_OFF, mouseX, mouseY); // TODO Should not use mouseX and mouseX
 		o.moving = true;
 		found = 1;
 	}
@@ -411,7 +441,7 @@ void endDrag(int x, int y) {
 void processDrag(int x, int y) {
     for (int i = 0; i < objects.length; ++i) {
         Object o = objects[i];
-        int rad = o.radius*2;
+        int rad = o.radius*2.5;
         if (o.moving && x > o.x-rad && x < o.x+rad && y > o.y-rad && y < o.y+rad) {
             objects[i].x = x;
             objects[i].y = y;
