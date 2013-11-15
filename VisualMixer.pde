@@ -49,12 +49,15 @@ void draw() {
 
 void drawCorners() {
 	int r = settings.corner_radius;
-	fill(255,102,0);
-    stroke(255,51,0);
-    ellipse(0, 0, 2*r, 2*r);
-	ellipse(settings.width, settings.height, 2*r, 2*r);
-	ellipse(settings.width, 0, 2*r, 2*r);
-	ellipse(0, settings.height, 2*r, 2*r);
+	
+	noStroke();
+    fill(255,102,0,5);
+    for (int i = 0; i <= 50; ++i) {
+        ellipse(0, 0, 3*r*i/50, 3*r*i/50);
+        ellipse(settings.width, settings.height, 3*r*i/50, 3*r*i/50);
+	    ellipse(settings.width, 0, 3*r*i/50, 3*r*i/50);
+	    ellipse(0, settings.height, 3*r*i/50, 3*r*i/50);
+    }
 }
 
 boolean isOnCornerArea(int x, int y) {
@@ -239,39 +242,6 @@ void drawPause(int x, int y, int r) {
     stroke(0,0,0);
     rect(x-r*sqrt(2)/2, y-r*sqrt(2)/2, r*sqrt(2)/3, r*sqrt(2));
     rect(x+r*sqrt(2)/6, y-r*sqrt(2)/2, r*sqrt(2)/3, r*sqrt(2));
-}
-
-/*
- * HELPERS
- */
-
-// TODO This will be deleted! TODO
-int getCloserAddMenu() {
-    int w = settings.height/8;
-    
-    int ret = -1;
-    float distC = dist(settings.add_menuX, settings.add_menuY+w, mouseX, mouseY);
-    float distT = dist(settings.add_menuX, settings.add_menuY-w, mouseX, mouseY);
-    float distS = dist(settings.add_menuX+w, settings.add_menuY, mouseX, mouseY);
-    float distST = dist(settings.add_menuX-w, settings.add_menuY, mouseX, mouseY);
-    if (distC == distT && distC == distS) return -1;
-    else {
-        float currentDist = distC;
-        ret = SHAPE_CIRCLE;
-        if (currentDist > distT) {
-            currentDist = distT;
-            ret = SHAPE_TRIANGLE;
-        }
-        if (currentDist > distS) {
-            currentDist = distS;
-            ret = SHAPE_SQUARE;
-        }
-        if (currentDist > distST) {
-            currentDist = distST;
-            ret = SHAPE_SALTIRE;
-        }
-    }
-    return ret;
 }
 
 /*
