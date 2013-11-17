@@ -364,6 +364,77 @@ void draw_instrument(int id) {
 	if (o.menu) drawInstrumentMenu(id);
 }
 
+void draw_instrument(int id) {
+	Object o = objects[id];
+	
+	fill(255,255,255);
+	stroke(0,0,0);
+	ellipse(o.x, o.y, 2*o.radius, 2*o.radius);
+	
+	switch(o.type) {
+		case INSTRUMENTS.SINE:
+			strokeWeight(1);
+			float a = 0.0;
+			float inc = TWO_PI/25.0;
+			float prev_x = o.x-10, prev_y = o.y, x, y;
+
+			for(int i=0; i<25; i=i+1) {
+			  x = o.x-10+i;
+			  y = o.y + sin(a) * 10.0;
+			  line(prev_x, prev_y, x, y);
+			  prev_x = x;
+			  prev_y = y;
+			  a = a + inc;
+			}
+			strokeWeight(2);
+			break;
+		case INSTRUMENTS.SQUARE:
+			strokeWeight(1);
+			beginShape();
+			vertex(o.x-10, o.y+5);
+			vertex(o.x-5, o.y+5);
+			vertex(o.x-5, o.y-5);
+			vertex(o.x+5, o.y-5);
+			vertex(o.x+5, o.y+5);
+			vertex(o.x+10, o.y+5);
+			endShape();
+			strokeWeight(2);
+			break;
+		case INSTRUMENTS.TRIANGLE:
+			strokeWeight(1);
+			noFill();
+			beginShape();
+			vertex(o.x-15,o.y);
+			vertex(o.x-10,o.y-10);
+			vertex(o.x,o.y+10);
+			vertex(o.x+10,o.y-10);
+			vertex(o.x+15,o.y);
+			endShape();
+			strokeWeight(2);
+			break;
+		case INSTRUMENTS.SAWTOOTH:
+			strokeWeight(1);
+			noFill();
+			beginShape();
+			vertex(o.x-10,o.y);
+			vertex(o.x-5,o.y-5);
+			vertex(o.x-5,o.y+5);
+			vertex(o.x+10,o.y-5);
+			vertex(o.x+10,o.y);
+			endShape();
+			strokeWeight(2);
+			break;
+		default:
+			break;
+	}
+	
+	if (o.type != INSTRUMENTS.NONE) {
+		// TODO: DRAW INSTRUMENT & STUFF
+	}
+	
+	if (o.menu) drawInstrumentMenu(id);
+}
+
 void inner_drawSaltire(int x, int y, int r, int k, int cr, int cg, int cb) {
     fill(cr, cg, cb);
     stroke(0,0,0);
