@@ -37,6 +37,7 @@ void setup() {
     size(window.innerWidth, window.innerHeight);
     settings.object_radius = 20;
 	settings.corner_radius = 80;
+	settings.corner_drag_radius = 120;
     settings.width = window.innerWidth;
     settings.height = window.innerHeight;
     settings.drag_distance = 40;
@@ -68,19 +69,21 @@ void draw() {
 
 void drawCorners() {
 	int r = settings.corner_radius;
+	int fillCounter = 50;
 	
 	noStroke();
     fill(255,102,0,5);
-    for (int i = 0; i <= 50; ++i) {
-        ellipse(0, 0, 3*r*i/50, 3*r*i/50);
-        ellipse(settings.width, settings.height, 3*r*i/50, 3*r*i/50);
-	    ellipse(settings.width, 0, 3*r*i/50, 3*r*i/50);
-	    ellipse(0, settings.height, 3*r*i/50, 3*r*i/50);
+
+    for (int i = 0; i <= fillCounter; ++i) {
+        ellipse(0, 0, 3*r*i/50, 3*r*i/fillCounter);
+        ellipse(settings.width, settings.height, 3*r*i/fillCounter, 3*r*i/fillCounter);
+	    ellipse(settings.width, 0, 3*r*i/fillCounter, 3*r*i/fillCounter);
+	    ellipse(0, settings.height, 3*r*i/fillCounter, 3*r*i/fillCounter);
     }
 }
 
 boolean isOnCornerArea(int x, int y) {
-	if (dist(x,y,0.0,0.0) <= settings.corner_radius || dist(x,y,settings.width,settings.height) <= settings.corner_radius || dist(x,y,settings.width,0.0) <= settings.corner_radius || dist(x,y,0.0,settings.height) <= settings.corner_radius) {
+	if (dist(x,y,0.0,0.0) <= settings.corner_drag_radius || dist(x,y,settings.width,settings.height) <= settings.corner_drag_radius || dist(x,y,settings.width,0.0) <= settings.corner_drag_radius || dist(x,y,0.0,settings.height) <= settings.corner_drag_radius) {
 			return true;
 	}
 	return false;
@@ -620,7 +623,8 @@ void endDrag(int x, int y) {
 			// delete object if drag released on corner area.
 			if (isOnCornerArea(objects[i].x,objects[i].y)) {
 				//console.log("Object removed.");
-				objects.pop(objects[i]);
+				//objects.pop(objects[i]);
+				objects.splice(i,1);
 			}
         }
     }
