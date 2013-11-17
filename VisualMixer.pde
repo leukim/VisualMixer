@@ -8,6 +8,19 @@ String EF_OVERDRIVER = "O";
 String EF_WAHWAH = "W";
 String EF_REVER = "R";
 
+var ROLE = {
+	EFFECT: 1,
+	INSTRUMENT: 2
+};
+
+var INSTRUMENTS = {
+	NONE: 0,
+	SINE: 1,
+	SQUARE: 2,
+	TRIANGLE: 3,
+	SAWTOOTH: 4
+};
+
 int FULL_COLOR = 255;
 int HALF_COLOR = 127;
 int QUARTER_COLOR = 63;
@@ -45,8 +58,12 @@ void draw() {
 	drawCorners();
 	
     for (int i = 0; i < objects.length; ++i) {
-        drawItem(i);
+        if (objects[i].role == ROLE.EFFECT) drawItem(i);
     }
+    
+    for (int i = 0; i < objects.length; ++i) {
+		if (objects[i].role == ROLE.INSTRUMENT) draw_instrument(i);
+	}
 }
 
 void drawCorners() {
@@ -60,8 +77,6 @@ void drawCorners() {
 	    ellipse(settings.width, 0, 3*r*i/50, 3*r*i/50);
 	    ellipse(0, settings.height, 3*r*i/50, 3*r*i/50);
     }
-    
-    
 }
 
 boolean isOnCornerArea(int x, int y) {
@@ -134,6 +149,69 @@ void drawEditMenu(int id) {
     text("R",o.x+o.radius+50-20, o.y+o.radius+50+20);
 }
 
+void drawInstrumentMenu(int id) {
+	Object o = objects[id];
+	
+	fill(255,255,255);
+	
+    ellipse(o.x-o.radius-75,o.y,60,60); // LEFT ITEM
+    ellipse(o.x-o.radius-75,o.y,60,60); // LEFT ITEM
+    strokeWeight(1);
+    float a = 0.0;
+	float inc = TWO_PI/25.0;
+	float prev_x = o.x-o.radius-75-10, prev_y = o.y, x, y;
+
+	for(int i=0; i<25; i=i+1) {
+	  x = o.x-o.radius-75-10+i;
+	  y = o.y + sin(a) * 10.0;
+	  line(prev_x, prev_y, x, y);
+	  prev_x = x;
+	  prev_y = y;
+	  a = a + inc;
+	}
+	strokeWeight(2);
+    
+    ellipse(o.x+o.radius+75,o.y,60,60); // RIGHT ITEM
+    ellipse(o.x+o.radius+75,o.y,60,60); // RIGHT ITEM
+    strokeWeight(1);
+	beginShape();
+	vertex(o.x+o.radius+75-10, o.y+5);
+	vertex(o.x+o.radius+75-5, o.y+5);
+	vertex(o.x+o.radius+75-5, o.y-5);
+	vertex(o.x+o.radius+75+5, o.y-5);
+	vertex(o.x+o.radius+75+5, o.y+5);
+	vertex(o.x+o.radius+75+10, o.y+5);
+	endShape();
+	strokeWeight(2);
+    
+    ellipse(o.x,o.y-o.radius-75,60,60); // TOP ITEM
+    ellipse(o.x,o.y-o.radius-75,60,60); // TOP ITEM
+    strokeWeight(1);
+	noFill();
+	beginShape();
+	vertex(o.x-15,o.y-o.radius-75);
+	vertex(o.x-10,o.y-o.radius-75-10);
+	vertex(o.x,o.y-o.radius-75+10);
+	vertex(o.x+10,o.y-o.radius-75-10);
+	vertex(o.x+15,o.y-o.radius-75);
+	endShape();
+	strokeWeight(2);
+    
+    ellipse(o.x,o.y+o.radius+75,60,60); // BOTTOM ITEM
+    ellipse(o.x,o.y+o.radius+75,60,60); // BOTTOM ITEM
+    strokeWeight(1);
+	noFill();
+	beginShape();
+	vertex(o.x-10,o.y+o.radius+75);
+	vertex(o.x-5,o.y+o.radius+75-5);
+	vertex(o.x-5,o.y+o.radius+75+5);
+	vertex(o.x+10,o.y+o.radius+75-5);
+	vertex(o.x+10,o.y+o.radius+75);
+	endShape();
+	strokeWeight(2);
+    
+}
+
 void drawItem(int id) {
     Object i = objects[id];
     
@@ -186,6 +264,77 @@ void drawItem(int id) {
     if (i.menu) drawEditMenu(id);
 }
 
+void draw_instrument(int id) {
+	Object o = objects[id];
+	
+	fill(255,255,255);
+	stroke(0,0,0);
+	ellipse(o.x, o.y, 2*o.radius, 2*o.radius);
+	
+	switch(o.type) {
+		case INSTRUMENTS.SINE:
+			strokeWeight(1);
+			float a = 0.0;
+			float inc = TWO_PI/25.0;
+			float prev_x = o.x-10, prev_y = o.y, x, y;
+
+			for(int i=0; i<25; i=i+1) {
+			  x = o.x-10+i;
+			  y = o.y + sin(a) * 10.0;
+			  line(prev_x, prev_y, x, y);
+			  prev_x = x;
+			  prev_y = y;
+			  a = a + inc;
+			}
+			strokeWeight(2);
+			break;
+		case INSTRUMENTS.SQUARE:
+			strokeWeight(1);
+			beginShape();
+			vertex(o.x-10, o.y+5);
+			vertex(o.x-5, o.y+5);
+			vertex(o.x-5, o.y-5);
+			vertex(o.x+5, o.y-5);
+			vertex(o.x+5, o.y+5);
+			vertex(o.x+10, o.y+5);
+			endShape();
+			strokeWeight(2);
+			break;
+		case INSTRUMENTS.TRIANGLE:
+			strokeWeight(1);
+			noFill();
+			beginShape();
+			vertex(o.x-15,o.y);
+			vertex(o.x-10,o.y-10);
+			vertex(o.x,o.y+10);
+			vertex(o.x+10,o.y-10);
+			vertex(o.x+15,o.y);
+			endShape();
+			strokeWeight(2);
+			break;
+		case INSTRUMENTS.SAWTOOTH:
+			strokeWeight(1);
+			noFill();
+			beginShape();
+			vertex(o.x-10,o.y);
+			vertex(o.x-5,o.y-5);
+			vertex(o.x-5,o.y+5);
+			vertex(o.x+10,o.y-5);
+			vertex(o.x+10,o.y);
+			endShape();
+			strokeWeight(2);
+			break;
+		default:
+			break;
+	}
+	
+	if (o.type != INSTRUMENTS.NONE) {
+		// TODO: DRAW INSTRUMENT & STUFF
+	}
+	
+	if (o.menu) drawInstrumentMenu(id);
+}
+
 void inner_drawSaltire(int x, int y, int r, int k, int cr, int cg, int cb) {
     fill(cr, cg, cb);
     stroke(0,0,0);
@@ -235,14 +384,26 @@ void drawPause(int x, int y, int r) {
 /*
  * STATE MODIFIERS
  */
+ 
+ int add_instrument(int x, int y) {
+	 Object o = new Object();
+	 o.x = x;
+	 o.y = y;
+	 o.type = INSTRUMENTS.NONE;
+	 o.menu = true;
+	 o.role = ROLE.INSTRUMENT;
+	 o.radius = 20;	
+	 objects.push(o);
+ }
 
 Object createShape(int effect, int x, int y) {
     var o = new Object();
+    o.role = ROLE.EFFECT;
     o.x = x;
     o.y = y;
     o.start_frame = frameCount;
     o.shape = shape;
-    o.active = false;
+    //o.active = false;
     o.radius = settings.object_radius;
     o.halo = settings.height/2;
     o.menu = false;
@@ -302,7 +463,7 @@ Object createShape(int effect, int x, int y) {
 // TAP
 //
 
-int open_menu(int x, int y) {
+int open_edit_menu(int x, int y) {
     for (int i = 0; i < objects.length; ++i) {
         Object o = objects[i];
         if (!o.menu_shapes && dist(x,y,o.x,o.y) <= o.radius) {
@@ -351,53 +512,77 @@ int select_menu(int x, int y) {
         Object o = objects[i];
         if (o.menu) {
             if (in_edit_left(o,x,y)) {
-                o.effect = EF_CHORUS;
-                o.r = 255;
-                o.g = 0;
-                o.b = 0;
-                o.menu = false;
+				if (o.role == ROLE.EFFECT) {
+					o.effect = EF_CHORUS;
+					o.r = 255;
+					o.g = 0;
+					o.b = 0;
+				} else {
+					o.type = INSTRUMENTS.SINE;
+				}
+				o.menu = false;
             } else if (in_edit_right(o,x,y)) {
-                o.effect = EF_DELAY;
-                o.r = 0;
-                o.g = 255;
-                o.b = 0;
-                o.menu = false;
+				if (o.role == ROLE.EFFECT) {
+					o.effect = EF_DELAY;
+					o.r = 0;
+					o.g = 255;
+					o.b = 0;
+				} else {
+					o.type = INSTRUMENTS.SQUARE;
+				}
+				o.menu = false;
             } else if (in_edit_top(o,x,y)) {
-                o.effect = EF_FLANGER;
-                o.r = 0;
-                o.g = 0;
-                o.b = 255;
+				if (o.role == ROLE.EFFECT) {
+					o.effect = EF_FLANGER;
+					o.r = 0;
+					o.g = 0;
+					o.b = 255;
+				} else {
+					o.type = INSTRUMENTS.TRIANGLE;
+				}
                 o.menu = false;
             } else if (in_edit_bottom(o,x,y)) {
-                o.effect = EF_MODULATOR;
-                o.r = 255;
-                o.g = 255;
-                o.b = 0;
+				if (o.role == ROLE.EFFECT) {
+					o.effect = EF_MODULATOR;
+					o.r = 255;
+					o.g = 255;
+					o.b = 0;
+				} else {
+					o.type = INSTRUMENTS.SAWTOOTH;
+				}
                 o.menu = false;
             } else if (in_edit_topleft(o,x,y)) {
-                o.effect = EF_HARMONIZER;
-                o.r = 255;
-                o.g = 0;
-                o.b = 255;
-                o.menu = false;
+				if (o.role == ROLE.EFFECT) {
+					o.effect = EF_HARMONIZER;
+					o.r = 255;
+					o.g = 0;
+					o.b = 255;
+					o.menu = false;
+				}
             } else if (in_edit_topright(o,x,y)) {
-                o.effect = EF_OVERDRIVER;
-                o.r = 0;
-                o.g = 255;
-                o.b = 255;
-                o.menu = false;
+				if (o.role == ROLE.EFFECT) {
+					o.effect = EF_OVERDRIVER;
+					o.r = 0;
+					o.g = 255;
+					o.b = 255;
+					o.menu = false;
+				}
             } else if (in_edit_bottomleft(o,x,y)) {
-                o.effect = EF_WAHWAH;
-                o.r = 127;
-                o.g = 127;
-                o.b = 63;
-                o.menu = false;
+				if (o.role == ROLE.EFFECT) {
+					o.effect = EF_WAHWAH;
+					o.r = 127;
+					o.g = 127;
+					o.b = 63;
+					o.menu = false;
+				}
             } else if (in_edit_bottomright(o,x,y)) {
-                o.effect = EF_REVER;
-                o.r = 127;
-                o.g = 63;
-                o.b = 127;
-                o.menu = false;
+				if (o.role == ROLE.EFFECT) {
+					o.effect = EF_REVER;
+					o.r = 127;
+					o.g = 63;
+					o.b = 127;
+					o.menu = false;
+				}
             }
         }
     }
@@ -445,6 +630,7 @@ void processDrag(int x, int y) {
     for (int i = 0; i < objects.length; ++i) {
         Object o = objects[i];
         int rad = o.radius*2.5;
+        //console.log(o);
         if (o.moving && x > o.x-rad && x < o.x+rad && y > o.y-rad && y < o.y+rad) {
             objects[i].x = x;
             objects[i].y = y;
@@ -453,7 +639,10 @@ void processDrag(int x, int y) {
 }
 
 void handleHold(int x, int y) {
-  int menu = open_menu(x, y);
+  int menu = open_edit_menu(x, y);
+  if (menu == -1) {
+	  add_instrument(x,y);
+  }
 }
 
 void handleTouch(int x, int y) {
