@@ -435,7 +435,8 @@ void endDrag(int x, int y) {
 			// delete object if drag released on corner area.
 			if (isOnCornerArea(objects[i].x,objects[i].y)) {
 				//console.log("Object removed.");
-				objects.pop(objects[i]);
+				//objects.pop(objects[i]);
+				objects.splice(i,1);
 			}
         }
     }
