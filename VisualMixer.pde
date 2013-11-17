@@ -244,8 +244,6 @@ void drawItem(int id) {
     int w = settings.height/2;
     int f = (frameCount - i.start_frame) % w;
     int f2 = (frameCount - i.start_frame) / 100;
-    
-	if (i.keyboard) drawKeyboard(id);
 	
     if (false && i.moving) {
         if (i.effect != EF_OFF) fill(i.r,i.g,i.b,32);
@@ -366,6 +364,8 @@ void draw_instrument(int id) {
 
 void draw_instrument(int id) {
 	Object o = objects[id];
+	
+	if (!o.menu && o.keyboard) drawKeyboard(id);
 	
 	fill(255,255,255);
 	stroke(0,0,0);
@@ -491,6 +491,7 @@ void drawPause(int x, int y, int r) {
 	 o.y = y;
 	 o.type = INSTRUMENTS.NONE;
 	 o.menu = true;
+	 o.keyboard = true;
 	 o.role = ROLE.INSTRUMENT;
 	 o.radius = 20;	
 	 objects.push(o);
@@ -753,17 +754,12 @@ void handleTouch(int x, int y) {
 	// sound
 	for (int i = 0; i < objects.length; ++i) {
         Object o = objects[i];
-        //int rad = o.radius*2.5;
-		if (!o.moving && dist(o.x,o.y,x,y) <= settings.keyboard_radius) {
+
+		if (o.role == ROLE.INSTRUMENT && dist(o.x,o.y,x,y) <= settings.keyboard_radius) {
 			float soundPitch = Math.min(2000.0, 2000.0*(dist(o.x,o.y,x,y) / settings.keyboard_radius));
 			console.log('Pitch ' + soundPitch);
 			playNote(soundPitch);
 		}
-		//dist(x,y,0.0,0.0) <= settings.corner_drag_radius
-        //if (o.moving && x > o.x-rad && x < o.x+rad && y > o.y-rad && y < o.y+rad) {
-        //    objects[i].x = x;
-        //    objects[i].y = y;
-        //}
     }
 }
 
