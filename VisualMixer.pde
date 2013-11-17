@@ -25,6 +25,7 @@ void setup() {
     settings.object_radius = 20;
 	settings.corner_radius = 80;
 	settings.corner_drag_radius = 120;
+	settings.keyboard_radius = 100;
     settings.width = window.innerWidth;
     settings.height = window.innerHeight;
     settings.drag_distance = 40;
@@ -48,6 +49,8 @@ void draw() {
     for (int i = 0; i < objects.length; ++i) {
         drawItem(i);
     }
+	
+	//drawKeyboard();
 }
 
 void drawCorners() {
@@ -72,6 +75,28 @@ boolean isOnCornerArea(int x, int y) {
 			return true;
 	}
 	return false;
+}
+
+void drawKeyboard(int id) {
+	Object o = objects[id];
+	
+	stroke(0,0,0);
+	noFill();
+	
+	beginShape(TRIANGLE_FAN);
+	
+	vertex(o.x, o.y);
+	vertex(o.x-settings.keyboard_radius, o.y);
+	vertex(o.x-settings.keyboard_radius/2.0, o.y+settings.keyboard_radius);
+	vertex(o.x+settings.keyboard_radius/2.0, o.y+settings.keyboard_radius);
+	vertex(o.x+settings.keyboard_radius, o.y);
+	vertex(o.x+settings.keyboard_radius, o.y);
+	vertex(o.x+settings.keyboard_radius/2.0, o.y-settings.keyboard_radius);
+	vertex(o.x-settings.keyboard_radius/2.0, o.y-settings.keyboard_radius);
+	vertex(o.x-settings.keyboard_radius, o.y);
+	
+	endShape();
+	
 }
 
 void drawEditMenu(int id) {
@@ -144,6 +169,8 @@ void drawItem(int id) {
     int f = (frameCount - i.start_frame) % w;
     int f2 = (frameCount - i.start_frame) / 100;
     
+	if (i.keyboard) drawKeyboard(id);
+	
     if (false && i.moving) {
         if (i.effect != EF_OFF) fill(i.r,i.g,i.b,32);
         else fill(127,127,127,32);
@@ -187,6 +214,7 @@ void drawItem(int id) {
     text(i.effect, i.x-10, i.y+10);
     
     if (i.menu) drawEditMenu(id);
+	
 }
 
 void inner_drawSaltire(int x, int y, int r, int k, int cr, int cg, int cb) {
@@ -249,6 +277,7 @@ Object createShape(int effect, int x, int y) {
     o.radius = settings.object_radius;
     o.halo = settings.height/2;
     o.menu = false;
+	o.keyboard = true;
     o.effect = effect;
     switch(effect) {
         case EF_OFF:
@@ -438,7 +467,6 @@ void endDrag(int x, int y) {
 			// delete object if drag released on corner area.
 			if (isOnCornerArea(objects[i].x,objects[i].y)) {
 				//console.log("Object removed.");
-				//objects.pop(objects[i]);
 				objects.splice(i,1);
 			}
         }
@@ -463,6 +491,25 @@ void handleHold(int x, int y) {
 void handleTouch(int x, int y) {
 	// TODO Detect if on a keyboard and play
     int done = select_menu(x, y);
+	
+	// sound
+	for (int i = 0; i < objects.length; ++i) {
+        Object o = objects[i];
+        //int rad = o.radius*2.5;
+		if (!o.moving && dist(o.x,o.y,x,y) <= settings.keyboard_radius) {
+			float soundPitch = Math.min(2000.0, 2000.0*(dist(o.x,o.y,x,y) / settings.keyboard_radius));
+			console.log('Pitch ' + soundPitch);
+			playNote(soundPitch);
+		}
+		//dist(x,y,0.0,0.0) <= settings.corner_drag_radius
+        //if (o.moving && x > o.x-rad && x < o.x+rad && y > o.y-rad && y < o.y+rad) {
+        //    objects[i].x = x;
+        //    objects[i].y = y;
+        //}
+    }
+}
+
+void handleRelease(int x, int y) {
 }
 
 //
