@@ -14,11 +14,11 @@ var ROLE = {
 };
 
 var INSTRUMENTS = {
-	NONE: 0,
-	SINE: 1,
-	SQUARE: 2,
+	NONE: -1,
+	SINE: 0,
+	SQUARE: 1,
 	TRIANGLE: 3,
-	SAWTOOTH: 4
+	SAWTOOTH: 2
 };
 
 int FULL_COLOR = 255;
@@ -41,7 +41,7 @@ void setup() {
 	settings.keyboard_radius = 100;
     settings.width = window.innerWidth;
     settings.height = window.innerHeight;
-    settings.drag_distance = 40;
+    settings.drag_distance = 20;
     
     strokeWeight(2);
     
@@ -94,7 +94,8 @@ void drawKeyboard(int id) {
 	Object o = objects[id];
 	
 	stroke(0,0,0);
-	noFill();
+	//noFill();
+	fill(255,255,255,127);
 	
 	beginShape(TRIANGLE_FAN);
 	
@@ -428,10 +429,6 @@ void draw_instrument(int id) {
 			break;
 	}
 	
-	if (o.type != INSTRUMENTS.NONE) {
-		// TODO: DRAW INSTRUMENT & STUFF
-	}
-	
 	if (o.menu) drawInstrumentMenu(id);
 }
 
@@ -494,6 +491,9 @@ void drawPause(int x, int y, int r) {
 	 o.keyboard = true;
 	 o.role = ROLE.INSTRUMENT;
 	 o.radius = 20;	
+	 
+	 o.oscillator = getOscillator(INSTRUMENTS.SINE);
+	 
 	 objects.push(o);
  }
 
@@ -565,15 +565,15 @@ Object createShape(int effect, int x, int y) {
 // TAP
 //
 
-int open_edit_menu(int x, int y) {
+boolean open_edit_menu(int x, int y) {
     for (int i = 0; i < objects.length; ++i) {
         Object o = objects[i];
         if (!o.menu_shapes && dist(x,y,o.x,o.y) <= o.radius) {
             objects[i].menu = true;
-            return i;
+            return true;
         }
     }
-    return -1;
+    return false;
 }
 
 boolean in_edit_left(Object o, int x, int y) {
@@ -621,6 +621,7 @@ int select_menu(int x, int y) {
 					o.b = 0;
 				} else {
 					o.type = INSTRUMENTS.SINE;
+					o.oscillator.type = INSTRUMENTS.SINE;
 				}
 				o.menu = false;
             } else if (in_edit_right(o,x,y)) {
@@ -631,6 +632,7 @@ int select_menu(int x, int y) {
 					o.b = 0;
 				} else {
 					o.type = INSTRUMENTS.SQUARE;
+					o.oscillator.type = INSTRUMENTS.SQUARE;
 				}
 				o.menu = false;
             } else if (in_edit_top(o,x,y)) {
@@ -641,6 +643,7 @@ int select_menu(int x, int y) {
 					o.b = 255;
 				} else {
 					o.type = INSTRUMENTS.TRIANGLE;
+					o.oscillator.type = INSTRUMENTS.TRIANGLE;
 				}
                 o.menu = false;
             } else if (in_edit_bottom(o,x,y)) {
@@ -651,6 +654,7 @@ int select_menu(int x, int y) {
 					o.b = 0;
 				} else {
 					o.type = INSTRUMENTS.SAWTOOTH;
+					o.oscillator.type = INSTRUMENTS.SAWTOOTH;
 				}
                 o.menu = false;
             } else if (in_edit_topleft(o,x,y)) {
@@ -692,8 +696,47 @@ int select_menu(int x, int y) {
 }
 
 //
+// MUSIC
+//
+
+boolean play(int x, int y) {
+	for (int i = 0; i < objects.length; ++i) {
+        Object o = objects[i];
+
+		if (o.role == ROLE.INSTRUMENT && !o.menu && dist(o.x,o.y,x,y) <= settings.keyboard_radius &&
+			dist(o.x,o.y,x,y) >= o.radius) { // We don't want the inner circle to play
+			//float soundPitch = Math.min(2000.0, 2000.0*(dist(o.x,o.y,x,y) / settings.keyboard_radius));
+			float pitch = 261.63 + 261.62*((dist(o.x,o.y,x,y)-o.radius)/(settings.keyboard_radius-o.radius));
+			//                     784.87 for tho chords
+			//console.log("Ratio: "+(dist(o.x,o.y,x,y)-o.radius)/(settings.keyboard_radius-o.radius));
+			console.log('Pitch ' + pitch);
+			//setFreq(o.oscillator, soundPitch);
+			playNote(o.oscillator, pitch);
+			return true;
+		}
+    }
+    return false;
+}
+
+//
 // DRAG
 //
+
+boolean try_end_drag(int x, int y) {
+	for (int i = 0; i < objects.length; i++) {
+        if (objects[i].x == x && objects[i].y == y) {
+            objects[i].moving = false;
+			
+			// delete object if drag released on corner area.
+			if (isOnCornerArea(objects[i].x,objects[i].y)) {
+				//console.log("Object removed.");
+				objects.splice(i,1);
+			}
+			return true;
+        }
+    }
+    return false;
+}
 
 void startDrag() {
 	//console.log("Start drag.");
@@ -715,17 +758,11 @@ void startDrag() {
 }
 
 void endDrag(int x, int y) {
-    for (int i = 0; i < objects.length; i++) {
-        if (objects[i].x == x && objects[i].y == y) {
-            objects[i].moving = false;
-			
-			// delete object if drag released on corner area.
-			if (isOnCornerArea(objects[i].x,objects[i].y)) {
-				//console.log("Object removed.");
-				objects.splice(i,1);
-			}
-        }
-    }
+	boolean dragged = try_end_drag(x,y);
+	if (!dragged) {
+		
+	}
+    
 }
 
 void processDrag(int x, int y) {
@@ -741,29 +778,33 @@ void processDrag(int x, int y) {
 }
 
 void handleHold(int x, int y) {
-  int menu = open_edit_menu(x, y);
-  if (menu == -1) {
-	  add_instrument(x,y);
-  }
+	if (!play(x,y)) {
+		if (!open_edit_menu(x, y)) {
+		  add_instrument(x,y);
+		}
+	}	
 }
 
 void handleTouch(int x, int y) {
-	// TODO Detect if on a keyboard and play
-    int done = select_menu(x, y);
+	//Detect if on a keyboard and play
+	boolean played = play(x,y);
 	
-	// sound
-	for (int i = 0; i < objects.length; ++i) {
-        Object o = objects[i];
-
-		if (o.role == ROLE.INSTRUMENT && dist(o.x,o.y,x,y) <= settings.keyboard_radius) {
-			float soundPitch = Math.min(2000.0, 2000.0*(dist(o.x,o.y,x,y) / settings.keyboard_radius));
-			console.log('Pitch ' + soundPitch);
-			playNote(soundPitch);
-		}
-    }
+	// If not on a keyboard, try to open a menu
+	if (!played) {
+		int done = select_menu(x, y);
+	}
 }
 
 void handleRelease(int x, int y) {
+	for (int i = 0; i < objects.length; ++i) {
+		if (objects[i].role == ROLE.INSTRUMENT) {
+			Object o = objects[i];
+			if (dist(o.x,o.y,x,y) <= settings.keyboard_radius && dist(o.x,o.y,x,y) >= o.radius) {
+				stopNote(o.oscillator);
+				console.log("STOP SOUND: "+i);
+			}
+		}
+	}
 }
 
 //
