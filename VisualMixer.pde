@@ -739,16 +739,22 @@ boolean play(int x, int y) {
 			// PITCH
 			
 			//float soundPitch = Math.min(2000.0, 2000.0*(dist(o.x,o.y,x,y) / settings.keyboard_radius));
-			float pitch = 261.63 + 261.62*(distFromCenter);
+			float pitch = 261.63 + 261.62*4*(distFromCenter);
 			//                     784.87 for tho chords
 			//console.log("Ratio: "+(dist(o.x,o.y,x,y)-o.radius)/(settings.keyboard_radius-o.radius));
 			console.log('Pitch ' + pitch);
 			//setFreq(o.oscillator, soundPitch);
 			
 			// VOLUME
-			o.gainNode.gain.value = distFromCenter;
-			console.log('Volume ' + o.gainNode.gain.value);
-			// TODO! volume to affect oscillator!
+			// check if inside volume control area
+			PVector vec = new PVector(o.x-x, o.y-y);
+			vec.normalize();
+			float angle = PVector.angleBetween(new PVector(1,0), vec);
+			if (y > o.y && x < o.x && angle <= 1.0) {
+				// modify volume
+				o.gainNode.gain.value = distFromCenter;
+				console.log('Volume ' + o.gainNode.gain.value);
+			}
 			
 			// PLAY NOTE
 			playNote(o.oscillator, pitch);
