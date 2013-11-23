@@ -119,7 +119,8 @@ void drawKeyboard(int id) {
 	
 	//*o.volume
 	// Volume area
-	var volumeBar = context.createRadialGradient(o.x, o.y, settings.keyboard_radius*Math.min(o.volume,0.99), o.x, o.y, settings.keyboard_radius);//context.createLinearGradient(0, 0, 100, 0);
+	var volume = o.gainNode.gain.value;
+	var volumeBar = context.createRadialGradient(o.x, o.y, settings.keyboard_radius*Math.min(volume, 0.99), o.x, o.y, settings.keyboard_radius);//context.createLinearGradient(0, 0, 100, 0);
 	volumeBar.addColorStop(0, "rgba(255,0,0,127)");
 	volumeBar.addColorStop(0.75, "rgba(255,255,0,127)");
 	volumeBar.addColorStop(1, "rgba(0,255,0,127)");
@@ -513,11 +514,14 @@ void drawPause(int x, int y, int r) {
 	 o.type = INSTRUMENTS.NONE;
 	 o.menu = true;
 	 o.keyboard = true;
-	 o.volume = 1.0;
+	 //o.volume = 1.0;
 	 o.role = ROLE.INSTRUMENT;
 	 o.radius = 20;	
 	 
-	 o.oscillator = getOscillator(INSTRUMENTS.SINE);
+	 var resultOscillator = getOscillator(INSTRUMENTS.SINE);
+	 
+	 o.oscillator = resultOscillator[0]; // oscillator node
+	 o.gainNode = resultOscillator[1]; // gain node
 	 
 	 objects.push(o);
  }
@@ -742,8 +746,9 @@ boolean play(int x, int y) {
 			//setFreq(o.oscillator, soundPitch);
 			
 			// VOLUME
-			o.volume = distFromCenter;
-			//o.volume
+			o.gainNode.gain.value = distFromCenter;
+			console.log('Volume ' + o.gainNode.gain.value);
+			// TODO! volume to affect oscillator!
 			
 			// PLAY NOTE
 			playNote(o.oscillator, pitch);
