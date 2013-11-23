@@ -33,8 +33,18 @@ int next = 0;
 int add_shape;
 int edit_shape;
 
+PImage volumebar;
+
+// Canvas to which this sketch is bound.
+var canvas;
+// Canvas drawing context for the running sketch.
+var context;
+
 void setup() {
-    size(window.innerWidth, window.innerHeight);
+    size(window.innerWidth, window.innerHeight,P2D);
+	canvas = externals.canvas;
+	context = externals.context;
+	
     settings.object_radius = 20;
 	settings.corner_radius = 80;
 	settings.corner_drag_radius = 120;
@@ -47,6 +57,8 @@ void setup() {
     
     arial = loadFont("resources/arial.ttf");
     textFont(arial);
+	
+	volumebar = loadImage("textures/volumebar.png");
 }
 
 
@@ -93,14 +105,12 @@ boolean isOnCornerArea(int x, int y) {
 void drawKeyboard(int id) {
 	Object o = objects[id];
 	
+	color volumebar = color(255,0,255,127);
+	
 	stroke(0,0,0);
-	//noFill();
-	fill(255,255,255,127);
-	
 	beginShape(TRIANGLE_FAN);
-	
+	fill(255,255,255,127);
 	vertex(o.x, o.y);
-	vertex(o.x-settings.keyboard_radius, o.y);
 	vertex(o.x-settings.keyboard_radius/2.0, o.y+settings.keyboard_radius);
 	vertex(o.x+settings.keyboard_radius/2.0, o.y+settings.keyboard_radius);
 	vertex(o.x+settings.keyboard_radius, o.y);
@@ -108,8 +118,39 @@ void drawKeyboard(int id) {
 	vertex(o.x+settings.keyboard_radius/2.0, o.y-settings.keyboard_radius);
 	vertex(o.x-settings.keyboard_radius/2.0, o.y-settings.keyboard_radius);
 	vertex(o.x-settings.keyboard_radius, o.y);
-	
 	endShape();
+	
+	//noFill();
+	//fill(255,255,255,127);
+	
+	//textureMode(NORMALIZED);
+	//var currentContext = externals.context;
+	
+	var volumeBar = context.createRadialGradient(o.x,o.y,settings.keyboard_radius/10,o.x,o.y,settings.keyboard_radius);//context.createLinearGradient(0, 0, 100, 0);
+	volumeBar.addColorStop(0, "rgba(255,0,0,127)");
+	volumeBar.addColorStop(1, "rgba(0,255,0,127)");
+	context.fillStyle = volumeBar;
+	
+	var cx_3 = (int) o.x-settings.keyboard_radius;
+	
+    context.beginPath();
+    context.moveTo(o.x-settings.keyboard_radius/2, o.y+settings.keyboard_radius);
+    context.lineTo(o.x,o.y);
+    context.lineTo(o.x-settings.keyboard_radius,o.y);
+	context.fill();
+    context.closePath();
+	context.stroke();
+	
+	
+	//beginShape();
+	//texture(volumebar);
+	//fill(volumebar); // TODO! MAKE GRADIENT OR TEXTURE!
+	//vertex(o.x, o.y);
+	//vertex(o.x-settings.keyboard_radius, o.y);
+	//vertex(o.x-settings.keyboard_radius/2.0, o.y+settings.keyboard_radius);
+	//endShape(CLOSE);
+	
+	
 	
 }
 
