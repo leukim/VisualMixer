@@ -33,8 +33,6 @@ int next = 0;
 int add_shape;
 int edit_shape;
 
-PImage volumebar;
-
 // Canvas to which this sketch is bound.
 var canvas;
 // Canvas drawing context for the running sketch.
@@ -57,8 +55,6 @@ void setup() {
     
     arial = loadFont("resources/arial.ttf");
     textFont(arial);
-	
-	volumebar = loadImage("textures/volumebar.png");
 }
 
 
@@ -107,6 +103,7 @@ void drawKeyboard(int id) {
 	
 	color volumebar = color(255,0,255,127);
 	
+	// keyboard area
 	stroke(0,0,0);
 	beginShape(TRIANGLE_FAN);
 	fill(255,255,255,127);
@@ -120,14 +117,11 @@ void drawKeyboard(int id) {
 	vertex(o.x-settings.keyboard_radius, o.y);
 	endShape();
 	
-	//noFill();
-	//fill(255,255,255,127);
-	
-	//textureMode(NORMALIZED);
-	//var currentContext = externals.context;
-	
-	var volumeBar = context.createRadialGradient(o.x,o.y,settings.keyboard_radius/10,o.x,o.y,settings.keyboard_radius);//context.createLinearGradient(0, 0, 100, 0);
+	//*o.volume
+	// Volume area
+	var volumeBar = context.createRadialGradient(o.x, o.y, settings.keyboard_radius*Math.min(o.volume,0.99), o.x, o.y, settings.keyboard_radius);//context.createLinearGradient(0, 0, 100, 0);
 	volumeBar.addColorStop(0, "rgba(255,0,0,127)");
+	volumeBar.addColorStop(0.75, "rgba(255,255,0,127)");
 	volumeBar.addColorStop(1, "rgba(0,255,0,127)");
 	context.fillStyle = volumeBar;
 	
@@ -140,17 +134,6 @@ void drawKeyboard(int id) {
 	context.fill();
     context.closePath();
 	context.stroke();
-	
-	
-	//beginShape();
-	//texture(volumebar);
-	//fill(volumebar); // TODO! MAKE GRADIENT OR TEXTURE!
-	//vertex(o.x, o.y);
-	//vertex(o.x-settings.keyboard_radius, o.y);
-	//vertex(o.x-settings.keyboard_radius/2.0, o.y+settings.keyboard_radius);
-	//endShape(CLOSE);
-	
-	
 	
 }
 
@@ -530,6 +513,7 @@ void drawPause(int x, int y, int r) {
 	 o.type = INSTRUMENTS.NONE;
 	 o.menu = true;
 	 o.keyboard = true;
+	 o.volume = 1.0;
 	 o.role = ROLE.INSTRUMENT;
 	 o.radius = 20;	
 	 
@@ -549,7 +533,7 @@ Object createShape(int effect, int x, int y) {
     o.radius = settings.object_radius;
     o.halo = settings.height/2;
     o.menu = false;
-	o.keyboard = true;
+	o.keyboard = false;
     o.effect = effect;
     switch(effect) {
         case EF_OFF:
@@ -746,12 +730,22 @@ boolean play(int x, int y) {
 
 		if (o.role == ROLE.INSTRUMENT && !o.menu && dist(o.x,o.y,x,y) <= settings.keyboard_radius &&
 			dist(o.x,o.y,x,y) >= o.radius) { // We don't want the inner circle to play
+			
+			float distFromCenter = (dist(o.x,o.y,x,y)-o.radius)/(settings.keyboard_radius-o.radius);
+			// PITCH
+			
 			//float soundPitch = Math.min(2000.0, 2000.0*(dist(o.x,o.y,x,y) / settings.keyboard_radius));
-			float pitch = 261.63 + 261.62*((dist(o.x,o.y,x,y)-o.radius)/(settings.keyboard_radius-o.radius));
+			float pitch = 261.63 + 261.62*(distFromCenter);
 			//                     784.87 for tho chords
 			//console.log("Ratio: "+(dist(o.x,o.y,x,y)-o.radius)/(settings.keyboard_radius-o.radius));
 			console.log('Pitch ' + pitch);
 			//setFreq(o.oscillator, soundPitch);
+			
+			// VOLUME
+			o.volume = distFromCenter;
+			//o.volume
+			
+			// PLAY NOTE
 			playNote(o.oscillator, pitch);
 			return true;
 		}
