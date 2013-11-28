@@ -738,12 +738,8 @@ boolean play(int x, int y) {
 			float distFromCenter = (dist(o.x,o.y,x,y)-o.radius)/(settings.keyboard_radius-o.radius);
 			// PITCH
 			
-			//float soundPitch = Math.min(2000.0, 2000.0*(dist(o.x,o.y,x,y) / settings.keyboard_radius));
 			float pitch = 261.63 + 261.62*4*(distFromCenter);
-			//                     784.87 for tho chords
-			//console.log("Ratio: "+(dist(o.x,o.y,x,y)-o.radius)/(settings.keyboard_radius-o.radius));
 			console.log('Pitch ' + pitch);
-			//setFreq(o.oscillator, soundPitch);
 			
 			// VOLUME
 			// check if inside volume control area
@@ -754,11 +750,19 @@ boolean play(int x, int y) {
 				// modify volume
 				o.gainNode.gain.value = distFromCenter;
 				console.log('Volume ' + o.gainNode.gain.value);
+			} else {
+				// PLAY NOTE
+				var result;
+				if (o.gainNode) {
+					result = getOscillator(o.type, o.gainNode);
+				} else {
+					result = getOscillator(o.type);
+					o.gainNode = result[1];
+				}
+				o.oscillator = result[0];
+				playNote(o.oscillator, pitch);
+				return true;
 			}
-			
-			// PLAY NOTE
-			playNote(o.oscillator, pitch);
-			return true;
 		}
     }
     return false;
@@ -845,8 +849,9 @@ void handleRelease(int x, int y) {
 	for (int i = 0; i < objects.length; ++i) {
 		if (objects[i].role == ROLE.INSTRUMENT) {
 			Object o = objects[i];
-			if (dist(o.x,o.y,x,y) <= settings.keyboard_radius && dist(o.x,o.y,x,y) >= o.radius) {
+			if (dist(o.x,o.y,x,y) <= settings.keyboard_radius && dist(o.x,o.y,x,y) >= o.radius && o.oscillator) {
 				stopNote(o.oscillator);
+				o.oscillator = null;
 				console.log("STOP SOUND: "+i);
 			}
 		}

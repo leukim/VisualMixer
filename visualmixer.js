@@ -48,41 +48,32 @@ actx = new webkitAudioContext();
 //var OSC1 = actx.createOscillator();
 //OSC1.frequency.value = 0;
 
-function getOscillator(type) {
+function getOscillator(type, g) {
 	// Oscillator
 	var o = actx.createOscillator();
 	o.type = type;
 	
 	// Gain
-	var g = actx.createGain();
+	if (g == null) {
+		g = actx.createGain();
+		g.gain.value = 0.5;
+	}
 	
 	o.connect(g);
 	g.connect(actx.destination);
 	
-	//o.connect(actx.destination);
-	o.frequency.value = 0;
-	g.gain.value = 0.5;
-	
-	o.start(0);
 	return [o,g];
 }
 
-//function setFreq(osc, freq) {
-//	osc.frequency.value = freq;
-//}
-
 function playNote(osc, freq) {
-	//OSC1.connect(actx.destination);
-	//osc.frequency.value = value;
-	//osc.start(0);
 	osc.frequency.value = freq;
-	//osc.gain.value = gain;
+	osc.start(0);
 }
 
 function stopNote(osc) {
 	//console.log("STOP");
-	//osc.stop(0);
-	osc.frequency.value = 0;
+	osc.stop(0);
+	//osc.frequency.value = 0;
 }
 
 /*
