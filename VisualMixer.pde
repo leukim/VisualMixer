@@ -734,12 +734,14 @@ boolean play(int x, int y) {
 
 		if (o.role == ROLE.INSTRUMENT && !o.menu && dist(o.x,o.y,x,y) <= settings.keyboard_radius &&
 			dist(o.x,o.y,x,y) >= o.radius) { // We don't want the inner circle to play
+				
+			if (o.playX == x && o.playY == y) return true; // Don't duplicate instrument sound on hold
 			
 			float distFromCenter = (dist(o.x,o.y,x,y)-o.radius)/(settings.keyboard_radius-o.radius);
 			// PITCH
 			
 			float pitch = 261.63 + 261.62*4*(distFromCenter);
-			console.log('Pitch ' + pitch);
+			//console.log('Pitch ' + pitch);
 			
 			// VOLUME
 			// check if inside volume control area
@@ -749,7 +751,7 @@ boolean play(int x, int y) {
 			if (y > o.y && x < o.x && angle <= 1.0) {
 				// modify volume
 				o.gainNode.gain.value = distFromCenter;
-				console.log('Volume ' + o.gainNode.gain.value);
+				//console.log('Volume ' + o.gainNode.gain.value);
 			} else {
 				// PLAY NOTE
 				var result;
@@ -761,6 +763,9 @@ boolean play(int x, int y) {
 				}
 				o.oscillator = result[0];
 				playNote(o.oscillator, pitch);
+				
+				o.playX = x;
+				o.playY = y;
 				return true;
 			}
 		}
@@ -824,6 +829,11 @@ void processDrag(int x, int y) {
             objects[i].x = x;
             objects[i].y = y;
         }
+        if (o.oscillator != null) {
+			float distFromCenter = (dist(o.x,o.y,x,y)-o.radius)/(settings.keyboard_radius-o.radius);
+			float pitch = 261.63 + 261.62*4*(distFromCenter);
+			o.oscillator.frequency.value = pitch;
+		}
     }
 }
 
@@ -845,14 +855,15 @@ void handleTouch(int x, int y) {
 	}
 }
 
-void handleRelease(int x, int y) {
+void handleRelease(int x, int y, int orig_x, int orig_y) {
 	for (int i = 0; i < objects.length; ++i) {
 		if (objects[i].role == ROLE.INSTRUMENT) {
 			Object o = objects[i];
-			if (dist(o.x,o.y,x,y) <= settings.keyboard_radius && dist(o.x,o.y,x,y) >= o.radius && o.oscillator) {
+			//if (dist(o.x,o.y,x,y) <= settings.keyboard_radius && dist(o.x,o.y,x,y) >= o.radius && o.oscillator) {
+			if (o.playX == orig_x && o.playY == orig_y) {
 				stopNote(o.oscillator);
 				o.oscillator = null;
-				console.log("STOP SOUND: "+i);
+				//console.log("STOP SOUND: "+i);
 			}
 		}
 	}

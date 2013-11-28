@@ -24,7 +24,8 @@ function initHammer() {
 		//playNote(x);
         break;
 	  case "release":
-        PInstance.handleRelease(x,y);
+		console.log(event);
+        PInstance.handleRelease(x,y, event.gesture.startEvent.center.pageX, event.gesture.startEvent.center.pageY);
         break;
       case "dragstart":
         PInstance.startDrag();
@@ -37,7 +38,7 @@ function initHammer() {
         break;
       case "pinch":
         PInstance.handlePinch(event.gesture.center.pageX, event.gesture.center.pageY, event.gesture.scale, event);
-        console.log(event);
+        //console.log(event);
         break;
       }
     });
@@ -71,9 +72,7 @@ function playNote(osc, freq) {
 }
 
 function stopNote(osc) {
-	//console.log("STOP");
 	osc.stop(0);
-	//osc.frequency.value = 0;
 }
 
 /*
