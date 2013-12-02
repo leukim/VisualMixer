@@ -50,6 +50,7 @@ void setup() {
     settings.width = window.innerWidth;
     settings.height = window.innerHeight;
     settings.drag_distance = 20;
+    settings.link_distance = window.innerWidth / 5;
     
     strokeWeight(2);
     
@@ -65,6 +66,8 @@ void setup() {
 void draw() {
     background(255,255,255);
     
+    drawLinks();
+    
 	drawCorners();
 	
     for (int i = 0; i < objects.length; ++i) {
@@ -73,6 +76,29 @@ void draw() {
     
     for (int i = 0; i < objects.length; ++i) {
 		if (objects[i].role == ROLE.INSTRUMENT) draw_instrument(i);
+	}
+}
+
+void drawLinks() {
+	for (int i = 0; i < objects.length; ++i) {
+		var instrument = objects[i];
+		if (instrument.role == ROLE.INSTRUMENT) {
+			for (int j = 0; j < objects.length; ++j) {
+				var effect = objects[j];
+				if (effect.role == ROLE.EFFECT) {
+					if (dist(instrument.x, instrument.y, effect.x, effect.y) < effect.halo) {
+						float intensity = (effect.halo-dist(instrument.x, instrument.y, effect.x, effect.y))/effect.halo;
+						int f = (frameCount - effect.start_frame)/20;
+						strokeWeight (20*intensity*abs(sin(f)));
+						stroke(effect.r, effect.g, effect.b);
+						//console.log(sin(f));
+						//console.log(FULL_COLOR*intensity);
+						line(effect.x, effect.y, instrument.x, instrument.y);
+						strokeWeight(2);
+					}
+				}
+			}
+		}
 	}
 }
 
@@ -205,7 +231,7 @@ void drawInstrumentMenu(int id) {
 	Object o = objects[id];
 	
 	fill(255,255,255);
-	
+	strokeWeight(2);
     ellipse(o.x-o.radius-75,o.y,60,60); // LEFT ITEM
     ellipse(o.x-o.radius-75,o.y,60,60); // LEFT ITEM
     strokeWeight(1);

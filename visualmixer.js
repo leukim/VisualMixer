@@ -24,7 +24,7 @@ function initHammer() {
 		//playNote(x);
         break;
 	  case "release":
-		console.log(event);
+		//console.log(event);
         PInstance.handleRelease(x,y, event.gesture.startEvent.center.pageX, event.gesture.startEvent.center.pageY);
         break;
       case "dragstart":
