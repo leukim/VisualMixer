@@ -46,8 +46,7 @@ function initHammer() {
 
 // AUDIO
 actx = new webkitAudioContext();
-//var OSC1 = actx.createOscillator();
-//OSC1.frequency.value = 0;
+tuna = new Tuna(actx);
 
 function getOscillator(type, g) {
 	// Oscillator
@@ -68,13 +67,13 @@ function getOscillator(type, g) {
 
 function addEffectNode(current, effect) {
 	current.disconnect();
-	current.connect(effect);
+	current.connect(effect.input);
 	effect.connect(actx.destination);
 }
 
-function getDelayNode(maxTime) {
-	return actx.createDelay(maxTime);
-}
+//function getDelayNode(maxTime) {
+//	return actx.createDelay(maxTime);
+//}
 
 function playNote(osc, freq) {
 	osc.frequency.value = freq;

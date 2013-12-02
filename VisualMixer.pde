@@ -538,9 +538,9 @@ void drawPause(int x, int y, int r) {
 	 o.type = INSTRUMENTS.NONE;
 	 o.menu = true;
 	 o.keyboard = true;
-	 //o.volume = 1.0;
 	 o.role = ROLE.INSTRUMENT;
-	 o.radius = 20;	
+	 o.radius = 20;
+	 o.effects = new Array();
 	 
 	 var resultOscillator = getOscillator(INSTRUMENTS.SINE);
 	 
@@ -678,7 +678,6 @@ int select_menu(int x, int y) {
 				o.menu = false;
             } else if (in_edit_right(o,x,y)) {
 				if (o.role == ROLE.EFFECT) {
-					o.node = getDelayNode(20);
 					o.effect = EF_DELAY;
 					o.r = 0;
 					o.g = 255;
@@ -761,7 +760,7 @@ boolean play(int x, int y) {
 			float distFromCenter = (dist(o.x,o.y,x,y)-o.radius)/(settings.keyboard_radius-o.radius);
 			// PITCH
 			
-			float pitch = 261.63 + 261.62*4*(distFromCenter);
+			float pitch = 261.63 + 261.62*2*(distFromCenter);
 			//console.log('Pitch ' + pitch);
 			
 			// VOLUME
@@ -792,13 +791,29 @@ boolean play(int x, int y) {
 						if (dist(o.x, o.y, effect.x, effect.y) < effect.halo) {
 							float intensity = (effect.halo-dist(o.x, o.y, effect.x, effect.y))/effect.halo;
 							switch (effect.effect) {
-								case EF_DELAY:
-									effect.node.delayTime = 20*intensity;
-									addEffectNode(currentNode, effect.node);
-									console.log(20*intensity);
-									currentNode = effect.node;
+								case EF_CHORUS:
+									newnode = new tuna.Chorus({
+										 rate: 8,
+										 feedback: 1*intensity,
+										 delay: 1*intensity,
+										 bypass: 0
+									 });
 									break;
+								case EF_DELAY: // NOT WORKING
+									newnode = new tuna.Delay({
+										feedback: 0.8,    //0 to 1+
+										delayTime: 3000,    //how many milliseconds should the wet signal be delayed? 
+										wetLevel: 0.75,    //0 to 1+
+										dryLevel: 1,       //0 to 1+
+										cutoff: 20,        //cutoff frequency of the built in highpass-filter. 20 to 22050
+										bypass: 0
+									});
+									break;
+									
 							}
+							addEffectNode(currentNode, newnode);
+							o.effects.push(newnode);
+							currentNode = newnode;
 						}
 					}
 				}
@@ -842,6 +857,7 @@ void startDrag() {
 			//console.log("Object found.");
             found = 1;
             objects[i].moving = true;
+            
         }
     }
 	// create object if draged on corner area.
@@ -903,6 +919,10 @@ void handleRelease(int x, int y, int orig_x, int orig_y) {
 			//if (dist(o.x,o.y,x,y) <= settings.keyboard_radius && dist(o.x,o.y,x,y) >= o.radius && o.oscillator) {
 			if (o.playX == orig_x && o.playY == orig_y) {
 				stopNote(o.oscillator);
+				while(o.effects.length > 0) {
+					var ef = o.effects.pop();
+					ef.disconnect();
+				}
 				o.oscillator = null;
 				//console.log("STOP SOUND: "+i);
 			}
