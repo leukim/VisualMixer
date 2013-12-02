@@ -14,6 +14,8 @@ function initHammer() {
       event.gesture.preventDefault();
       var x = event.gesture.touches[0].pageX; 
       var y = event.gesture.touches[0].pageY;
+      var x_ini = event.gesture.startEvent.center.pageX;
+      var y_ini = event.gesture.startEvent.center.pageY;
 
       switch (event.type) {
       case "hold":
@@ -25,16 +27,16 @@ function initHammer() {
         break;
 	  case "release":
 		//console.log(event);
-        PInstance.handleRelease(x,y, event.gesture.startEvent.center.pageX, event.gesture.startEvent.center.pageY);
+        PInstance.handleRelease(x,y, x_ini, y_ini);
         break;
       case "dragstart":
-        PInstance.startDrag();
+        PInstance.startDrag(x,y, x_ini, y_ini);
         break;
       case "drag":
-        PInstance.processDrag(x, y);
+        PInstance.processDrag(x, y, x_ini, y_ini);
         break;
       case "dragend":
-        PInstance.endDrag(x, y);
+        PInstance.endDrag(x, y, x_ini, y_ini);
         break;
       case "pinch":
         PInstance.handlePinch(event.gesture.center.pageX, event.gesture.center.pageY, event.gesture.scale, event);
@@ -66,7 +68,7 @@ function getOscillator(type, g) {
 }
 
 function addEffectNode(current, effect) {
-	current.disconnect();
+	//current.disconnect();
 	current.connect(effect.input);
 	effect.connect(actx.destination);
 }

@@ -85,7 +85,7 @@ void drawLinks() {
 		if (instrument.role == ROLE.INSTRUMENT) {
 			for (int j = 0; j < objects.length; ++j) {
 				var effect = objects[j];
-				if (effect.role == ROLE.EFFECT) {
+				if (effect.role == ROLE.EFFECT && effect.effect != EF_OFF) {
 					if (dist(instrument.x, instrument.y, effect.x, effect.y) < effect.halo) {
 						float intensity = (effect.halo-dist(instrument.x, instrument.y, effect.x, effect.y))/effect.halo;
 						int f = (frameCount - effect.start_frame)/20;
@@ -833,62 +833,75 @@ boolean play(int x, int y) {
 // DRAG
 //
 
-boolean try_end_drag(int x, int y) {
+boolean try_end_drag(int x, int y, int x_ini, int y_ini) {
+	boolean dragged = false;
 	for (int i = 0; i < objects.length; i++) {
-        if (objects[i].x == x && objects[i].y == y) {
-            objects[i].moving = false;
+		Object o = objects[i];
+		int rad = o.radius*2.5;
+        //if (objects[i].startX == x_ini && objects[i].startY == y_ini) {
+		if (x_ini > o.movingX-rad && x_ini < o.movingX+rad && y_ini > o.movingY-rad && y_ini < o.movingY+rad) {
+            //objects[i].moving = false;
+            o.movingX = null;
+            o.movingY = null;
+            //console.log("TERMINATING MOVE OBJ "+i);
 			
 			// delete object if drag released on corner area.
-			if (isOnCornerArea(objects[i].x,objects[i].y)) {
+			if (isOnCornerArea(o.x,o.y)) {
 				//console.log("Object removed.");
 				objects.splice(i,1);
 			}
-			return true;
+			dragged = true;
         }
     }
-    return false;
+    return dragged;
 }
 
-void startDrag() {
+void startDrag(int x, int y, int x_ini, int y_ini) {
 	//console.log("Start drag.");
     int found = 0;
     for (int i = 0; i < objects.length && found == 0; ++i) {
-        if (dist(mouseX,mouseY,objects[i].x,objects[i].y) <= settings.drag_distance) {
-			//console.log("Object found.");
+		Object o = objects[i];
+        if (dist(x_ini,y_ini,o.x,o.y) <= settings.drag_distance) {
+			//console.log("Object found: "+i);
             found = 1;
-            objects[i].moving = true;
-            
+            o.movingX = x_ini;
+            o.movingY = y_ini;
+            o.x = x;
+            o.y = y;
         }
     }
 	// create object if draged on corner area.
-	if (found == 0 && isOnCornerArea(mouseX, mouseY)) { // TODO Should not use mouseX and mouseX
+	if (found == 0 && isOnCornerArea(x, y)) { // TODO Should not use mouseX and mouseX
 		//console.log("Drag started on corner area.");
-		Object o = createShape(EF_OFF, mouseX, mouseY); // TODO Should not use mouseX and mouseX
-		o.moving = true;
+		Object o = createShape(EF_OFF, x, y); // TODO Should not use mouseX and mouseX
+		o.movingX = x;
+        o.movingY = y;
 		found = 1;
 	}
 }
 
-void endDrag(int x, int y) {
-	boolean dragged = try_end_drag(x,y);
+void endDrag(int x, int y, int x_ini, int y_ini) {
+	boolean dragged = try_end_drag(x,y, x_ini, y_ini);
 	if (!dragged) {
 		
 	}
-    
 }
 
-void processDrag(int x, int y) {
+void processDrag(int x, int y, int x_ini, int y_ini) {
     for (int i = 0; i < objects.length; ++i) {
         Object o = objects[i];
         int rad = o.radius*2.5;
         //console.log(o);
-        if (o.moving && x > o.x-rad && x < o.x+rad && y > o.y-rad && y < o.y+rad) {
-            objects[i].x = x;
-            objects[i].y = y;
+        //console.log("INI: ("+x_ini+","+y_ini+")");
+        //console.log("MOV: ("+o.movingX+","+o.movingY+")");
+        //console.log(y_ini);
+        if (o.movingX && x_ini > o.movingX-rad && x_ini < o.movingX+rad && y_ini > o.movingY-rad && y_ini < o.movingY+rad) {
+            o.x = x;
+            o.y = y;
         }
         if (o.oscillator != null) {
 			float distFromCenter = (dist(o.x,o.y,x,y)-o.radius)/(settings.keyboard_radius-o.radius);
-			float pitch = 261.63 + 261.62*4*(distFromCenter);
+			float pitch = 261.63 + 261.62*2*(distFromCenter);
 			o.oscillator.frequency.value = pitch;
 		}
     }
@@ -925,6 +938,9 @@ void handleRelease(int x, int y, int orig_x, int orig_y) {
 				}
 				o.oscillator = null;
 				//console.log("STOP SOUND: "+i);
+				
+				o.playX = null;
+				o.playY = null;
 			}
 		}
 	}
