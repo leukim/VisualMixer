@@ -6,8 +6,8 @@ String EF_MODULATOR = "M";
 String EF_HARMONIZER = "H";
 String EF_OVERDRIVER = "O";
 String EF_WAHWAH = "W";
-/*String EF_TREMOLO = "R";*/
 String EF_TREMOLO = "T";
+
 
 var ROLE = {
 	EFFECT: 1,
@@ -87,6 +87,7 @@ void drawLinks() {
 			for (int j = 0; j < objects.length; ++j) {
 				var effect = objects[j];
 				if (effect.role == ROLE.EFFECT) {
+
 					if (dist(instrument.x, instrument.y, effect.x, effect.y) < effect.halo) {
 						float intensity = (effect.halo-dist(instrument.x, instrument.y, effect.x, effect.y))/effect.halo;
 						int f = (frameCount - effect.start_frame)/20;
@@ -174,8 +175,8 @@ void drawEditMenu(int id) {
     fill(255,0,0,QUARTER_COLOR);
     ellipse(o.x-o.radius-75,o.y,60,60); // LEFT ITEM
     fill(0,0,0);
+
     text(EF_CHORUS, o.x-o.radius-75-20,o.y+20);
-    
     fill(255,255,255);
     ellipse(o.x+o.radius+75,o.y,60,60); // RIGHT ITEM
     fill(0,255,0,QUARTER_COLOR);
@@ -188,34 +189,43 @@ void drawEditMenu(int id) {
     fill(0,0,255,QUARTER_COLOR);    
     ellipse(o.x,o.y-o.radius-75,60,60); // TOP ITEM
     fill(0,0,0);
+
     text(EF_FLANGER,o.x-20, o.y-o.radius-75+20);
+
     
     fill(255,255,255);
     ellipse(o.x,o.y+o.radius+75,60,60); // BOTTOM ITEM
     fill(255,255,0,QUARTER_COLOR);    
     ellipse(o.x,o.y+o.radius+75,60,60); // BOTTOM ITEM
     fill(0,0,0);
+
     text(EF_MODULATOR,o.x-20, o.y+o.radius+75+20);
+
     
     fill(255,255,255);
     ellipse(o.x-o.radius-50,o.y-o.radius-50,60,60); // TOP LEFT ITEM
     fill(255,0,255,QUARTER_COLOR);
     ellipse(o.x-o.radius-50,o.y-o.radius-50,60,60); // TOP LEFT ITEM
     fill(0,0,0);
+
     text(EF_HARMONIZER,o.x-o.radius-50-20, o.y-o.radius-50+20);
+
     
     fill(255,255,255);
     ellipse(o.x+o.radius+50,o.y-o.radius-50,60,60); // TOP RIGHT ITEM
     fill(0,255,255,QUARTER_COLOR);
     ellipse(o.x+o.radius+50,o.y-o.radius-50,60,60); // TOP RIGHT ITEM
     fill(0,0,0);
+
     text(EF_OVERDRIVER,o.x+o.radius+50-20, o.y-o.radius-50+20);
+
     
     fill(255,255,255);
     ellipse(o.x-o.radius-50,o.y+o.radius+50,60,60); // BOTTOM LEFT ITEM
     fill(127,127,63,QUARTER_COLOR);
     ellipse(o.x-o.radius-50,o.y+o.radius+50,60,60); // BOTTOM LEFT ITEM
     fill(0,0,0);
+
     text(EF_WAHWAH,o.x-o.radius-50-20, o.y+o.radius+50+20);
     
     fill(255,255,255);
@@ -802,6 +812,7 @@ boolean play(int x, int y) {
 										 bypass: 0
 									 });
 									break;
+
 								
 								case EF_DELAY:
 									effect_object = new tuna.Delay({
@@ -867,6 +878,7 @@ boolean play(int x, int y) {
 // DRAG
 //
 
+
 boolean try_end_drag(int x, int y) {
 	for (int i = 0; i < objects.length; i++) {
         if (objects[i].x == x && objects[i].y == y) {
@@ -890,10 +902,14 @@ void startDrag() {
         if (dist(mouseX,mouseY,objects[i].x,objects[i].y) <= settings.drag_distance) {
 			//console.log("Object found.");
             found = 1;
-            objects[i].moving = true;
+            o.movingX = x_ini;
+            o.movingY = y_ini;
+            o.x = x;
+            o.y = y;
         }
     }
 	// create object if draged on corner area.
+
 	if (found == 0 && isOnCornerArea(mouseX, mouseY)) { // TODO Should not use mouseX and mouseX
 		//console.log("Drag started on corner area.");
 		Object o = createShape(EF_OFF, mouseX, mouseY); // TODO Should not use mouseX and mouseX
@@ -907,10 +923,9 @@ void endDrag(int x, int y) {
 	if (!dragged) {
 		
 	}
-    
 }
 
-void processDrag(int x, int y) {
+void processDrag(int x, int y, int x_ini, int y_ini) {
     for (int i = 0; i < objects.length; ++i) {
         Object o = objects[i];
         int rad = o.radius*2.5;
