@@ -66,13 +66,25 @@ function getOscillator(type, g) {
 	return [o,g];
 }
 
+function addEffectNode(current, effect) {
+	current.disconnect();
+	current.connect(effect);
+	effect.connect(actx.destination);
+}
+
+function getDelayNode(maxTime) {
+	return actx.createDelay(maxTime);
+}
+
 function playNote(osc, freq) {
 	osc.frequency.value = freq;
 	osc.start(0);
 }
 
 function stopNote(osc) {
-	osc.stop(0);
+	if (osc) {
+		osc.stop(0);
+	}
 }
 
 /*

@@ -91,8 +91,6 @@ void drawLinks() {
 						int f = (frameCount - effect.start_frame)/20;
 						strokeWeight (20*intensity*abs(sin(f)));
 						stroke(effect.r, effect.g, effect.b);
-						//console.log(sin(f));
-						//console.log(FULL_COLOR*intensity);
 						line(effect.x, effect.y, instrument.x, instrument.y);
 						strokeWeight(2);
 					}
@@ -343,7 +341,7 @@ void drawItem(int id) {
 	
 }
 
-void draw_instrument(int id) {
+void draw_instrument_old(int id) {
 	Object o = objects[id];
 	
 	fill(255,255,255);
@@ -676,18 +674,17 @@ int select_menu(int x, int y) {
 					o.b = 0;
 				} else {
 					o.type = INSTRUMENTS.SINE;
-					o.oscillator.type = INSTRUMENTS.SINE;
 				}
 				o.menu = false;
             } else if (in_edit_right(o,x,y)) {
 				if (o.role == ROLE.EFFECT) {
+					o.node = getDelayNode(20);
 					o.effect = EF_DELAY;
 					o.r = 0;
 					o.g = 255;
 					o.b = 0;
 				} else {
 					o.type = INSTRUMENTS.SQUARE;
-					o.oscillator.type = INSTRUMENTS.SQUARE;
 				}
 				o.menu = false;
             } else if (in_edit_top(o,x,y)) {
@@ -698,7 +695,6 @@ int select_menu(int x, int y) {
 					o.b = 255;
 				} else {
 					o.type = INSTRUMENTS.TRIANGLE;
-					o.oscillator.type = INSTRUMENTS.TRIANGLE;
 				}
                 o.menu = false;
             } else if (in_edit_bottom(o,x,y)) {
@@ -709,7 +705,6 @@ int select_menu(int x, int y) {
 					o.b = 0;
 				} else {
 					o.type = INSTRUMENTS.SAWTOOTH;
-					o.oscillator.type = INSTRUMENTS.SAWTOOTH;
 				}
                 o.menu = false;
             } else if (in_edit_topleft(o,x,y)) {
@@ -788,6 +783,26 @@ boolean play(int x, int y) {
 					o.gainNode = result[1];
 				}
 				o.oscillator = result[0];
+				
+				currentNode = o.gainNode;
+				
+				for (int j = 0; j < objects.length; ++j) {
+					var effect = objects[j];
+					if (effect.role == ROLE.EFFECT) {
+						if (dist(o.x, o.y, effect.x, effect.y) < effect.halo) {
+							float intensity = (effect.halo-dist(o.x, o.y, effect.x, effect.y))/effect.halo;
+							switch (effect.effect) {
+								case EF_DELAY:
+									effect.node.delayTime = 20*intensity;
+									addEffectNode(currentNode, effect.node);
+									console.log(20*intensity);
+									currentNode = effect.node;
+									break;
+							}
+						}
+					}
+				}
+				
 				playNote(o.oscillator, pitch);
 				
 				o.playX = x;

@@ -1,0 +1,9 @@
+<html style="width: 100%; height: 100%;">
+    <head>
+        <script src="./hammer.js"></script>
+        <script src="./processing-1.4.1.js"></script>
+    </head>
+    <body style="width: 100%; height: 100%;">
+        <canvas id="table" data-processing-sources="./table.pde" style="width: 100%; height: 100%;"></canvas>
+    </body>
+</html>
