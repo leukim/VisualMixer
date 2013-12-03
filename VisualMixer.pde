@@ -6,7 +6,8 @@ String EF_MODULATOR = "M";
 String EF_HARMONIZER = "H";
 String EF_OVERDRIVER = "O";
 String EF_WAHWAH = "W";
-String EF_REVER = "R";
+String EF_TREMOLO = "T";
+
 
 var ROLE = {
 	EFFECT: 1,
@@ -141,7 +142,6 @@ void drawKeyboard(int id) {
 	vertex(o.x-settings.keyboard_radius, o.y);
 	endShape();
 	
-	//*o.volume
 	// Volume area
 	var volume = o.gainNode.gain.value;
 	var volumeBar = context.createRadialGradient(o.x, o.y, settings.keyboard_radius*Math.min(volume, 0.99), o.x, o.y, settings.keyboard_radius);//context.createLinearGradient(0, 0, 100, 0);
@@ -173,56 +173,56 @@ void drawEditMenu(int id) {
     fill(255,0,0,QUARTER_COLOR);
     ellipse(o.x-o.radius-75,o.y,60,60); // LEFT ITEM
     fill(0,0,0);
-    text("C", o.x-o.radius-75-20,o.y+20);
-    
+    text(EF_CHORUS, o.x-o.radius-75-20,o.y+20);
+
     fill(255,255,255);
     ellipse(o.x+o.radius+75,o.y,60,60); // RIGHT ITEM
     fill(0,255,0,QUARTER_COLOR);
     ellipse(o.x+o.radius+75,o.y,60,60); // RIGHT ITEM
     fill(0,0,0);
-    text("D",o.x+o.radius+75-20, o.y+20);
+    text(EF_DELAY,o.x+o.radius+75-20, o.y+20);
     
     fill(255,255,255);
     ellipse(o.x,o.y-o.radius-75,60,60); // TOP ITEM
     fill(0,0,255,QUARTER_COLOR);    
     ellipse(o.x,o.y-o.radius-75,60,60); // TOP ITEM
     fill(0,0,0);
-    text("F",o.x-20, o.y-o.radius-75+20);
+    text(EF_FLANGER,o.x-20, o.y-o.radius-75+20);
     
     fill(255,255,255);
     ellipse(o.x,o.y+o.radius+75,60,60); // BOTTOM ITEM
     fill(255,255,0,QUARTER_COLOR);    
     ellipse(o.x,o.y+o.radius+75,60,60); // BOTTOM ITEM
     fill(0,0,0);
-    text("M",o.x-20, o.y+o.radius+75+20);
+    text(EF_MODULATOR,o.x-20, o.y+o.radius+75+20);
     
     fill(255,255,255);
     ellipse(o.x-o.radius-50,o.y-o.radius-50,60,60); // TOP LEFT ITEM
     fill(255,0,255,QUARTER_COLOR);
     ellipse(o.x-o.radius-50,o.y-o.radius-50,60,60); // TOP LEFT ITEM
     fill(0,0,0);
-    text("H",o.x-o.radius-50-20, o.y-o.radius-50+20);
+    text(EF_HARMONIZER,o.x-o.radius-50-20, o.y-o.radius-50+20);
     
     fill(255,255,255);
     ellipse(o.x+o.radius+50,o.y-o.radius-50,60,60); // TOP RIGHT ITEM
     fill(0,255,255,QUARTER_COLOR);
     ellipse(o.x+o.radius+50,o.y-o.radius-50,60,60); // TOP RIGHT ITEM
     fill(0,0,0);
-    text("O",o.x+o.radius+50-20, o.y-o.radius-50+20);
+    text(EF_OVERDRIVER,o.x+o.radius+50-20, o.y-o.radius-50+20);
     
     fill(255,255,255);
     ellipse(o.x-o.radius-50,o.y+o.radius+50,60,60); // BOTTOM LEFT ITEM
     fill(127,127,63,QUARTER_COLOR);
     ellipse(o.x-o.radius-50,o.y+o.radius+50,60,60); // BOTTOM LEFT ITEM
     fill(0,0,0);
-    text("W",o.x-o.radius-50-20, o.y+o.radius+50+20);
+    text(EF_WAHWAH,o.x-o.radius-50-20, o.y+o.radius+50+20);
     
     fill(255,255,255);
     ellipse(o.x+o.radius+50,o.y+o.radius+50,60,60); // BOTTOM RIGHT ITEM
     fill(127,63,127,QUARTER_COLOR);
     ellipse(o.x+o.radius+50,o.y+o.radius+50,60,60); // BOTTOM RIGHT ITEM
     fill(0,0,0);
-    text("R",o.x+o.radius+50-20, o.y+o.radius+50+20);
+    text(EF_TREMOLO,o.x+o.radius+50-20, o.y+o.radius+50+20);
 }
 
 void drawInstrumentMenu(int id) {
@@ -339,77 +339,6 @@ void drawItem(int id) {
     
     if (i.menu) drawEditMenu(id);
 	
-}
-
-void draw_instrument_old(int id) {
-	Object o = objects[id];
-	
-	fill(255,255,255);
-	stroke(0,0,0);
-	ellipse(o.x, o.y, 2*o.radius, 2*o.radius);
-	
-	switch(o.type) {
-		case INSTRUMENTS.SINE:
-			strokeWeight(1);
-			float a = 0.0;
-			float inc = TWO_PI/25.0;
-			float prev_x = o.x-10, prev_y = o.y, x, y;
-
-			for(int i=0; i<25; i=i+1) {
-			  x = o.x-10+i;
-			  y = o.y + sin(a) * 10.0;
-			  line(prev_x, prev_y, x, y);
-			  prev_x = x;
-			  prev_y = y;
-			  a = a + inc;
-			}
-			strokeWeight(2);
-			break;
-		case INSTRUMENTS.SQUARE:
-			strokeWeight(1);
-			beginShape();
-			vertex(o.x-10, o.y+5);
-			vertex(o.x-5, o.y+5);
-			vertex(o.x-5, o.y-5);
-			vertex(o.x+5, o.y-5);
-			vertex(o.x+5, o.y+5);
-			vertex(o.x+10, o.y+5);
-			endShape();
-			strokeWeight(2);
-			break;
-		case INSTRUMENTS.TRIANGLE:
-			strokeWeight(1);
-			noFill();
-			beginShape();
-			vertex(o.x-15,o.y);
-			vertex(o.x-10,o.y-10);
-			vertex(o.x,o.y+10);
-			vertex(o.x+10,o.y-10);
-			vertex(o.x+15,o.y);
-			endShape();
-			strokeWeight(2);
-			break;
-		case INSTRUMENTS.SAWTOOTH:
-			strokeWeight(1);
-			noFill();
-			beginShape();
-			vertex(o.x-10,o.y);
-			vertex(o.x-5,o.y-5);
-			vertex(o.x-5,o.y+5);
-			vertex(o.x+10,o.y-5);
-			vertex(o.x+10,o.y);
-			endShape();
-			strokeWeight(2);
-			break;
-		default:
-			break;
-	}
-	
-	if (o.type != INSTRUMENTS.NONE) {
-		// TODO: DRAW INSTRUMENT & STUFF
-	}
-	
-	if (o.menu) drawInstrumentMenu(id);
 }
 
 void draw_instrument(int id) {
@@ -557,7 +486,6 @@ Object createShape(int effect, int x, int y) {
     o.y = y;
     o.start_frame = frameCount;
     o.shape = shape;
-    //o.active = false;
     o.radius = settings.object_radius;
     o.halo = settings.height/2;
     o.menu = false;
@@ -604,7 +532,7 @@ Object createShape(int effect, int x, int y) {
             o.g = 127;
             o.b = 63;
             break;
-        case EF_REVER:
+        case EF_TREMOLO:
             o.r = 127;
             o.g = 63;
             o.b = 127;
@@ -732,7 +660,7 @@ int select_menu(int x, int y) {
 				}
             } else if (in_edit_bottomright(o,x,y)) {
 				if (o.role == ROLE.EFFECT) {
-					o.effect = EF_REVER;
+					o.effect = EF_TREMOLO;
 					o.r = 127;
 					o.g = 63;
 					o.b = 127;
@@ -757,23 +685,20 @@ boolean play(int x, int y) {
 				
 			if (o.playX == x && o.playY == y) return true; // Don't duplicate instrument sound on hold
 			
-			float distFromCenter = (dist(o.x,o.y,x,y)-o.radius)/(settings.keyboard_radius-o.radius);
 			// PITCH
-			
+			float distFromCenter = (dist(o.x,o.y,x,y)-o.radius)/(settings.keyboard_radius-o.radius);
 			float pitch = 261.63 + 261.62*2*(distFromCenter);
-			//console.log('Pitch ' + pitch);
 			
 			// VOLUME
-			// check if inside volume control area
+			// Check if inside volume control area or rest of the instrument
 			PVector vec = new PVector(o.x-x, o.y-y);
 			vec.normalize();
 			float angle = PVector.angleBetween(new PVector(1,0), vec);
 			if (y > o.y && x < o.x && angle <= 1.0) {
-				// modify volume
+				// We're on volume control, change volume
 				o.gainNode.gain.value = distFromCenter;
-				//console.log('Volume ' + o.gainNode.gain.value);
 			} else {
-				// PLAY NOTE
+				// We're not on volume control, play instrument
 				var result;
 				if (o.gainNode) {
 					result = getOscillator(o.type, o.gainNode);
@@ -792,15 +717,15 @@ boolean play(int x, int y) {
 							float intensity = (effect.halo-dist(o.x, o.y, effect.x, effect.y))/effect.halo;
 							switch (effect.effect) {
 								case EF_CHORUS:
-									newnode = new tuna.Chorus({
+									effect_object = new tuna.Chorus({
 										 rate: 8,
 										 feedback: 1*intensity,
 										 delay: 1*intensity,
 										 bypass: 0
 									 });
 									break;
-								case EF_DELAY: // NOT WORKING
-									newnode = new tuna.Delay({
+								case EF_DELAY:
+									effect_object = new tuna.Delay({
 										feedback: 0.8,    //0 to 1+
 										delayTime: 3000,    //how many milliseconds should the wet signal be delayed? 
 										wetLevel: 0.75,    //0 to 1+
@@ -809,11 +734,40 @@ boolean play(int x, int y) {
 										bypass: 0
 									});
 									break;
-									
+								case EF_TREMOLO:
+									// TODO: 
+									// Wondering which parameter should we changed 
+									// according to the filter distance from the oscillator(s)
+									effect_object = new tuna.Tremolo({
+					                  intensity: 1,    //0 to 1
+					                  rate: 8,         //0.001 to 8
+					                  stereoPhase: 180,    //0 to 180
+					                  bypass: 0
+					             	});
+
+					            case EF_WAHWAH:
+									effect_object = new tuna.WahWah({
+						                automode: true,                //true/false
+						                baseFrequency: 0.5,            //0 to 1
+						                excursionOctaves: 3,           //1 to 6
+						                sweep: 0.5,                    //0 to 1
+						                resonance: 50,                 //1 to 100
+						                sensitivity: 0,              //-1 to 1
+						                bypass: 0
+						            });
+
+						        case EF_OVERDRIVER:
+						            effect_object = new tuna.Overdrive({
+                    						outputGain: 0.5,         //0 to 1+
+                    						drive: 0.7,              //0 to 1
+                    						curveAmount: 1,          //0 to 1
+                    						algorithmIndex: 2,       //0 to 5, selects one of our drive algorithms
+                    						bypass: 0
+                					});
 							}
-							addEffectNode(currentNode, newnode);
-							o.effects.push(newnode);
-							currentNode = newnode;
+							addEffectNode(currentNode, effect_object);
+							o.effects.push(effect_object);
+							currentNode = effect_object;
 						}
 					}
 				}
@@ -838,16 +792,12 @@ boolean try_end_drag(int x, int y, int x_ini, int y_ini) {
 	for (int i = 0; i < objects.length; i++) {
 		Object o = objects[i];
 		int rad = o.radius*2.5;
-        //if (objects[i].startX == x_ini && objects[i].startY == y_ini) {
 		if (x_ini > o.movingX-rad && x_ini < o.movingX+rad && y_ini > o.movingY-rad && y_ini < o.movingY+rad) {
-            //objects[i].moving = false;
             o.movingX = null;
             o.movingY = null;
-            //console.log("TERMINATING MOVE OBJ "+i);
 			
 			// delete object if drag released on corner area.
 			if (isOnCornerArea(o.x,o.y)) {
-				//console.log("Object removed.");
 				objects.splice(i,1);
 			}
 			dragged = true;
@@ -857,12 +807,10 @@ boolean try_end_drag(int x, int y, int x_ini, int y_ini) {
 }
 
 void startDrag(int x, int y, int x_ini, int y_ini) {
-	//console.log("Start drag.");
     int found = 0;
     for (int i = 0; i < objects.length && found == 0; ++i) {
 		Object o = objects[i];
         if (dist(x_ini,y_ini,o.x,o.y) <= settings.drag_distance) {
-			//console.log("Object found: "+i);
             found = 1;
             o.movingX = x_ini;
             o.movingY = y_ini;
@@ -871,9 +819,8 @@ void startDrag(int x, int y, int x_ini, int y_ini) {
         }
     }
 	// create object if draged on corner area.
-	if (found == 0 && isOnCornerArea(x, y)) { // TODO Should not use mouseX and mouseX
-		//console.log("Drag started on corner area.");
-		Object o = createShape(EF_OFF, x, y); // TODO Should not use mouseX and mouseX
+	if (found == 0 && isOnCornerArea(x, y)) {
+		Object o = createShape(EF_OFF, x, y);
 		o.movingX = x;
         o.movingY = y;
 		found = 1;
@@ -891,10 +838,6 @@ void processDrag(int x, int y, int x_ini, int y_ini) {
     for (int i = 0; i < objects.length; ++i) {
         Object o = objects[i];
         int rad = o.radius*2.5;
-        //console.log(o);
-        //console.log("INI: ("+x_ini+","+y_ini+")");
-        //console.log("MOV: ("+o.movingX+","+o.movingY+")");
-        //console.log(y_ini);
         if (o.movingX && x_ini > o.movingX-rad && x_ini < o.movingX+rad && y_ini > o.movingY-rad && y_ini < o.movingY+rad) {
             o.x = x;
             o.y = y;
@@ -929,7 +872,6 @@ void handleRelease(int x, int y, int orig_x, int orig_y) {
 	for (int i = 0; i < objects.length; ++i) {
 		if (objects[i].role == ROLE.INSTRUMENT) {
 			Object o = objects[i];
-			//if (dist(o.x,o.y,x,y) <= settings.keyboard_radius && dist(o.x,o.y,x,y) >= o.radius && o.oscillator) {
 			if (o.playX == orig_x && o.playY == orig_y) {
 				stopNote(o.oscillator);
 				while(o.effects.length > 0) {
@@ -937,7 +879,6 @@ void handleRelease(int x, int y, int orig_x, int orig_y) {
 					ef.disconnect();
 				}
 				o.oscillator = null;
-				//console.log("STOP SOUND: "+i);
 				
 				o.playX = null;
 				o.playY = null;
@@ -957,12 +898,7 @@ void handlePinch(int x, int y, float scale, Object event) {
     for (int i = 0; i < objects.length; ++i) {
         Object o = objects[i];
         if (dist(x,y,o.x,o.y) < o.halo) {
-            //o.halo *= scale;
             o.halo = dist(event.gesture.touches[0].pageX, event.gesture.touches[0].pageY,event.gesture.touches[1].pageX, event.gesture.touches[1].pageY);
         }
     }
 }
-
-
-
-
