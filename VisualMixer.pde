@@ -47,7 +47,7 @@ void setup() {
     settings.object_radius = 20;
 	settings.corner_radius = 80;
 	settings.corner_drag_radius = 120;
-	settings.keyboard_radius = 100;
+	settings.keyboard_radius = 150;
     settings.width = window.innerWidth;
     settings.height = window.innerHeight;
     settings.drag_distance = 20;
@@ -141,6 +141,17 @@ void drawKeyboard(int id) {
 	vertex(o.x-settings.keyboard_radius/2.0, o.y-settings.keyboard_radius);
 	vertex(o.x-settings.keyboard_radius, o.y);
 	endShape();
+	
+	strokeWeight(3);
+	for (int i = 0; i < 14; ++i) {
+		if (i == 6) {
+			stroke(0,255,0);
+		} else {
+			stroke(255,0,0);
+		}
+		point(o.x+o.radius+(i*settings.keyboard_radius/14),o.y);
+	}
+	strokeWeight(2);
 	
 	// Volume area
 	var volume = o.gainNode.gain.value;
@@ -747,9 +758,9 @@ boolean play(int x, int y) {
 
 					            case EF_WAHWAH:
 									effect_object = new tuna.WahWah({
-						                automode: true,                //true/false
+						                automode: false,                //true/false
 						                baseFrequency: 0.5,            //0 to 1
-						                excursionOctaves: 3,           //1 to 6
+						                excursionOctaves: 6,           //1 to 6
 						                sweep: 0.5,                    //0 to 1
 						                resonance: 50,                 //1 to 100
 						                sensitivity: 0,              //-1 to 1

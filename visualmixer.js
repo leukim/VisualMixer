@@ -7,7 +7,8 @@ $(document).ready(function() {
 //
 function initHammer() {
     Hammer.plugins.fakeMultitouch(); // FOR DEV PURPOSES
-    var hammer = Hammer(document.getElementById("visual-mixer-canvas"));
+    var hammer = Hammer(document.getElementById("visual-mixer-canvas"),
+						{hold_threshold: 10});
 
     hammer.on("hold touch release dragstart drag dragend pinch", function(event) {
 	  var PInstance = Processing.getInstanceById("visual-mixer-canvas");
