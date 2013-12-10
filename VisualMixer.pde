@@ -1,9 +1,9 @@
 String EF_OFF = "";
 String EF_CHORUS = "C";
 String EF_DELAY = "D";
-String EF_FLANGER = "F";
-String EF_MODULATOR = "M";
-String EF_HARMONIZER = "H";
+String EF_FILTER = "F";
+String EF_PHASER = "P";
+String EF_COMPRESSOR = "R";
 String EF_OVERDRIVER = "O";
 String EF_WAHWAH = "W";
 String EF_TREMOLO = "T";
@@ -198,21 +198,21 @@ void drawEditMenu(int id) {
     fill(0,0,255,QUARTER_COLOR);    
     ellipse(o.x,o.y-o.radius-75,60,60); // TOP ITEM
     fill(0,0,0);
-    text(EF_FLANGER,o.x-20, o.y-o.radius-75+20);
+    text(EF_FILTER,o.x-20, o.y-o.radius-75+20);
     
     fill(255,255,255);
     ellipse(o.x,o.y+o.radius+75,60,60); // BOTTOM ITEM
     fill(255,255,0,QUARTER_COLOR);    
     ellipse(o.x,o.y+o.radius+75,60,60); // BOTTOM ITEM
     fill(0,0,0);
-    text(EF_MODULATOR,o.x-20, o.y+o.radius+75+20);
+    text(EF_PHASER,o.x-20, o.y+o.radius+75+20);
     
     fill(255,255,255);
     ellipse(o.x-o.radius-50,o.y-o.radius-50,60,60); // TOP LEFT ITEM
     fill(255,0,255,QUARTER_COLOR);
     ellipse(o.x-o.radius-50,o.y-o.radius-50,60,60); // TOP LEFT ITEM
     fill(0,0,0);
-    text(EF_HARMONIZER,o.x-o.radius-50-20, o.y-o.radius-50+20);
+    text(EF_COMPRESSOR,o.x-o.radius-50-20, o.y-o.radius-50+20);
     
     fill(255,255,255);
     ellipse(o.x+o.radius+50,o.y-o.radius-50,60,60); // TOP RIGHT ITEM
@@ -518,17 +518,17 @@ Object createShape(int effect, int x, int y) {
             o.g = 255;
             o.b = 0;
             break;
-        case EF_FLANGER:
+        case EF_FILTER:
             o.r = 0;
             o.g = 0;
             o.b = 255;
             break;
-        case EF_MODULATOR:
+        case EF_PHASER:
             o.r = 255;
             o.g = 255;
             o.b = 0;
             break;
-        case EF_HARMONIZER:
+        case EF_COMPRESSOR:
             o.r = 255;
             o.g = 0;
             o.b = 255;
@@ -627,7 +627,7 @@ int select_menu(int x, int y) {
 				o.menu = false;
             } else if (in_edit_top(o,x,y)) {
 				if (o.role == ROLE.EFFECT) {
-					o.effect = EF_FLANGER;
+					o.effect = EF_FILTER;
 					o.r = 0;
 					o.g = 0;
 					o.b = 255;
@@ -637,7 +637,7 @@ int select_menu(int x, int y) {
                 o.menu = false;
             } else if (in_edit_bottom(o,x,y)) {
 				if (o.role == ROLE.EFFECT) {
-					o.effect = EF_MODULATOR;
+					o.effect = EF_PHASER;
 					o.r = 255;
 					o.g = 255;
 					o.b = 0;
@@ -647,7 +647,7 @@ int select_menu(int x, int y) {
                 o.menu = false;
             } else if (in_edit_topleft(o,x,y)) {
 				if (o.role == ROLE.EFFECT) {
-					o.effect = EF_HARMONIZER;
+					o.effect = EF_COMPRESSOR;
 					o.r = 255;
 					o.g = 0;
 					o.b = 255;
@@ -755,7 +755,6 @@ boolean play(int x, int y) {
 					                  stereoPhase: 180,    //0 to 180
 					                  bypass: 0
 					             	});
-
 					            case EF_WAHWAH:
 									effect_object = new tuna.WahWah({
 						                automode: false,                //true/false
@@ -766,7 +765,6 @@ boolean play(int x, int y) {
 						                sensitivity: 0,              //-1 to 1
 						                bypass: 0
 						            });
-
 						        case EF_OVERDRIVER:
 						            effect_object = new tuna.Overdrive({
                     						outputGain: 0.5,         //0 to 1+
@@ -774,6 +772,35 @@ boolean play(int x, int y) {
                     						curveAmount: 1,          //0 to 1
                     						algorithmIndex: 2,       //0 to 5, selects one of our drive algorithms
                     						bypass: 0
+                					});
+								case EF_FILTER:
+						            effect_object = new tuna.Filter({
+											frequency: 20,         //20 to 22050
+											Q: 1,                  //0.001 to 100
+											gain: 0,               //-40 to 40
+											bypass: 1,             //0 to 1+
+											filterType: 0,         //0 to 7, corresponds to the filter types in the native filter node: lowpass, highpass, bandpass, lowshelf, highshelf, peaking, notch, allpass in that order
+											bypass: 0
+                					});
+								case EF_PHASER:
+						            effect_object = new tuna.Phaser({
+											rate: 1.2,                     //0.01 to 8 is a decent range, but higher values are possible
+											depth: 0.3,                    //0 to 1
+											feedback: 0.2,                 //0 to 1+
+											stereoPhase: 30,               //0 to 180
+											baseModulationFrequency: 700,  //500 to 1500
+											bypass: 0
+                					});
+								case EF_COMPRESSOR:
+						            effect_object = new tuna.Compressor({
+											threshold: 0.5,    //-100 to 0
+											makeupGain: 1,     //0 and up
+											attack: 1,         //0 to 1000
+											release: 0,        //0 to 3000
+											ratio: 4,          //1 to 20
+											knee: 5,           //0 to 40
+											automakeup: true,  //true/false
+											bypass: 0
                 					});
 							}
 							addEffectNode(currentNode, effect_object);
