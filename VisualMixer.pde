@@ -740,7 +740,7 @@ boolean play(int x, int y) {
 										feedback: 0.8,    //0 to 1+
 										delayTime: 3000,    //how many milliseconds should the wet signal be delayed? 
 										wetLevel: 0.75,    //0 to 1+
-										dryLevel: 1,       //0 to 1+
+										dryLevel: 0.5,       //0 to 1+
 										cutoff: 20,        //cutoff frequency of the built in highpass-filter. 20 to 22050
 										bypass: 0
 									});
@@ -751,28 +751,31 @@ boolean play(int x, int y) {
 									// according to the filter distance from the oscillator(s)
 									effect_object = new tuna.Tremolo({
 					                  intensity: 1,    //0 to 1
-					                  rate: 8,         //0.001 to 8
-					                  stereoPhase: 180,    //0 to 180
+					                  rate: 8*intensity,         //0.001 to 8
+					                  stereoPhase: 180*intensity,    //0 to 180
 					                  bypass: 0
 					             	});
+					             	break;
 					            case EF_WAHWAH:
 									effect_object = new tuna.WahWah({
 						                automode: false,                //true/false
 						                baseFrequency: 0.5,            //0 to 1
 						                excursionOctaves: 6,           //1 to 6
 						                sweep: 0.5,                    //0 to 1
-						                resonance: 50,                 //1 to 100
-						                sensitivity: 0,              //-1 to 1
+						                resonance: 100*intensity,                 //1 to 100
+						                sensitivity: 1,              //-1 to 1
 						                bypass: 0
 						            });
+						            break;
 						        case EF_OVERDRIVER:
 						            effect_object = new tuna.Overdrive({
-                    						outputGain: 0.5,         //0 to 1+
-                    						drive: 0.7,              //0 to 1
-                    						curveAmount: 1,          //0 to 1
-                    						algorithmIndex: 2,       //0 to 5, selects one of our drive algorithms
+                    						outputGain: 0,         //0 to 1+
+                    						drive: 1*intensity,              //0 to 1
+                    						curveAmount: 1*intensity,          //0 to 1
+                    						algorithmIndex: 1,       //0 to 5, selects one of our drive algorithms
                     						bypass: 0
                 					});
+                					break;
 								case EF_FILTER:
 						            effect_object = new tuna.Filter({
 											frequency: 20,         //20 to 22050
@@ -782,26 +785,29 @@ boolean play(int x, int y) {
 											filterType: 0,         //0 to 7, corresponds to the filter types in the native filter node: lowpass, highpass, bandpass, lowshelf, highshelf, peaking, notch, allpass in that order
 											bypass: 0
                 					});
+                					break;
 								case EF_PHASER:
 						            effect_object = new tuna.Phaser({
-											rate: 1.2,                     //0.01 to 8 is a decent range, but higher values are possible
+											rate: 8*intensity,                     //0.01 to 8 is a decent range, but higher values are possible
 											depth: 0.3,                    //0 to 1
 											feedback: 0.2,                 //0 to 1+
 											stereoPhase: 30,               //0 to 180
 											baseModulationFrequency: 700,  //500 to 1500
 											bypass: 0
                 					});
+                					break;
 								case EF_COMPRESSOR:
 						            effect_object = new tuna.Compressor({
-											threshold: 0.5,    //-100 to 0
-											makeupGain: 1,     //0 and up
-											attack: 1,         //0 to 1000
-											release: 0,        //0 to 3000
-											ratio: 4,          //1 to 20
-											knee: 5,           //0 to 40
+											threshold: -100*intensity,    //-100 to 0
+											makeupGain: 0,     //0 and up
+											attack: 500*intensity,         //0 to 1000
+											release: 500*intensity,        //0 to 3000
+											ratio: 10,          //1 to 20
+											knee: 20,           //0 to 40
 											automakeup: true,  //true/false
 											bypass: 0
                 					});
+                					break;
 							}
 							addEffectNode(currentNode, effect_object);
 							o.effects.push(effect_object);
